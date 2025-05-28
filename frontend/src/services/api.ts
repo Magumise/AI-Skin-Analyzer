@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API configuration
-const API_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-nyy1.onrender.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -105,7 +105,7 @@ export const authAPI = {
   // Login user
   login: async (credentials: { email: string; password: string }) => {
     try {
-      const response = await api.post('/users/login/', credentials);
+      const response = await api.post('/token/', credentials);
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access);
       }

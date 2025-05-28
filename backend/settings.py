@@ -216,7 +216,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://frontend-two-mu-37.vercel.app",
     "https://ai-skin-analyzer.vercel.app",
-    "https://ai-skin-analyzer-vmlu.onrender.com"
+    "https://ai-skin-analyzer-nyy1.onrender.com"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -246,7 +246,7 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
-CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+CORS_PREFLIGHT_MAX_AGE = 86400
 
 # Cache settings
 CACHES = {
@@ -292,5 +292,5 @@ SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
 CSRF_TRUSTED_ORIGINS = [
     "https://frontend-two-mu-37.vercel.app",
     "https://ai-skin-analyzer.vercel.app",
-    "https://ai-skin-analyzer-vmlu.onrender.com"
+    "https://ai-skin-analyzer-nyy1.onrender.com"
 ]
