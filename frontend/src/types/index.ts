@@ -18,6 +18,9 @@ export interface AnalysisResult {
   severity: 'mild' | 'moderate' | 'severe';
   confidence: number;
   image_url?: string;
+  message?: string;
+  products?: Product[];
+  condition?: string;
 }
 
 export interface User {

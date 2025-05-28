@@ -60,10 +60,8 @@ const Results = () => {
   
   // Check if condition is critical (low confidence or specific message)
   const isConditionCritical = () => {
-    return (
-      parseFloat(confidencePercentage) < 50 || 
-      (result.message && result.message.includes("consult a dermatologist"))
-    );
+    const hasMessage = result.message?.includes("consult a dermatologist");
+    return parseFloat(confidencePercentage) < 50 || hasMessage;
   };
   
   // Get recommended products from the AI model
@@ -163,7 +161,7 @@ const Results = () => {
                           py={1}
                           borderRadius="full"
                         >
-                          {result.condition}
+                          {result.condition || 'Unknown'}
                         </Badge>
                       </HStack>
                       
@@ -196,7 +194,7 @@ const Results = () => {
                         size="md"
                         leftIcon={<Icon as={FaUserMd} />}
                         onClick={() => navigate('/consult-specialists', { 
-                          state: { skinCondition: result.condition } 
+                          state: { skinCondition: result.condition || 'Unknown' } 
                         })}
                         width="100%"
                       >
@@ -259,7 +257,6 @@ const Results = () => {
                               height="100%" 
                               objectFit="cover"
                               onError={(e) => {
-                                // Fallback to a placeholder image if the image fails to load
                                 const target = e.target as HTMLImageElement;
                                 target.src = `https://via.placeholder.com/300x300?text=${product.name.replace(' ', '+')}`;
                               }}
@@ -291,6 +288,7 @@ const Results = () => {
                             colorScheme="red" 
                             width="100%" 
                             leftIcon={<Icon as={FaShoppingCart} />}
+                            onClick={() => handleProductClick(product)}
                           >
                             Add to Cart
                           </Button>

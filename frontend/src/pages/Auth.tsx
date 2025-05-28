@@ -103,6 +103,9 @@ const Auth = () => {
   const [imagePath, setImagePath] = useState('');
   const [imageError, setImageError] = useState(false);
 
+  const skinTypes: (keyof SkinType)[] = ['normal', 'dry', 'oily', 'combination', 'sensitive'];
+  const skinConcerns: (keyof SkinConcerns)[] = ['acne', 'wrinkles', 'darkSpots', 'redness', 'dryness', 'oiliness', 'sensitivity', 'aging'];
+
   useEffect(() => {
     // Try to get the correct image path
     try {
@@ -137,22 +140,24 @@ const Auth = () => {
     }));
   };
 
-  const handleCheckboxChange = (category: 'skinType' | 'skinConcerns', name: string) => {
-    setFormData(prev => {
-      const newData = { ...prev };
-      if (category === 'skinType') {
-        newData.skinType = {
-          ...prev.skinType,
-          [name]: !prev.skinType[name as keyof SkinType]
-        };
-      } else {
-        newData.skinConcerns = {
-          ...prev.skinConcerns,
-          [name]: !prev.skinConcerns[name as keyof SkinConcerns]
-        };
+  const handleSkinTypeChange = (type: keyof SkinType, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      skinType: {
+        ...prev.skinType,
+        [type]: checked
       }
-      return newData;
-    });
+    }));
+  };
+
+  const handleSkinConcernChange = (concern: keyof SkinConcerns, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      skinConcerns: {
+        ...prev.skinConcerns,
+        [concern]: checked
+      }
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -481,13 +486,11 @@ const Auth = () => {
                             Skin Type
                           </FormLabel>
                           <VStack align="start" spacing={3}>
-                            {Object.keys(formData.skinType).map((type) => (
+                            {skinTypes.map((type) => (
                               <Checkbox
                                 key={type}
                                 isChecked={formData.skinType[type]}
-                                onChange={() => handleCheckboxChange('skinType', type)}
-                                colorScheme="pink"
-                                size="lg"
+                                onChange={(e) => handleSkinTypeChange(type, e.target.checked)}
                               >
                                 {type.charAt(0).toUpperCase() + type.slice(1)}
                               </Checkbox>
@@ -499,15 +502,13 @@ const Auth = () => {
                             Skin Concerns
                           </FormLabel>
                           <VStack align="start" spacing={3}>
-                            {Object.keys(formData.skinConcerns).map((concern) => (
+                            {skinConcerns.map((concern) => (
                               <Checkbox
                                 key={concern}
                                 isChecked={formData.skinConcerns[concern]}
-                                onChange={() => handleCheckboxChange('skinConcerns', concern)}
-                                colorScheme="pink"
-                                size="lg"
+                                onChange={(e) => handleSkinConcernChange(concern, e.target.checked)}
                               >
-                                {concern.charAt(0).toUpperCase() + concern.slice(1)}
+                                {concern.replace(/([A-Z])/g, ' $1').trim()}
                               </Checkbox>
                             ))}
                           </VStack>
