@@ -3,7 +3,7 @@ import django
 from django.contrib.auth import get_user_model
 
 # Set up Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'skin_analyzer.settings')
 django.setup()
 
 def create_superuser():
