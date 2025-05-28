@@ -55,14 +55,35 @@ import {
   Center,
   SimpleGrid,
   Avatar,
+  Select,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  Divider,
+  InputGroup,
+  InputRightElement,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  List,
+  ListItem,
+  ListIcon,
 } from '@chakra-ui/react';
-import { FaPlus, FaEdit, FaTrash, FaImage, FaShoppingBag, FaUsers, FaChartBar, FaSync, FaUserSlash, FaUserCheck, FaUserTimes, FaUserMd } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaImage, FaShoppingBag, FaUsers, FaChartBar, FaSync, FaUserSlash, FaUserCheck, FaUserTimes, FaUserMd, FaSearch, FaFilter, FaSort, FaUpload, FaShoppingCart } from 'react-icons/fa';
 import { AddIcon, EditIcon, DeleteIcon, ViewIcon } from '@chakra-ui/icons';
 import axios from 'axios';
 import './AdminDashboard.css';
 import ProductImage from '../components/ProductImage';
 import { productAPI } from '../services/api';
-import { ProductData } from '../types/ProductData';
+import { Product, ProductData } from '../types/index';
 
 interface FormData {
   price: string;
@@ -480,6 +501,42 @@ const AdminDashboard = () => {
         description: error.message || 'Failed to update user status',
         status: 'error',
         duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleCreateProduct = async () => {
+    try {
+      const productData: ProductData = {
+        name: newProduct.name,
+        brand: newProduct.brand,
+        category: newProduct.category,
+        description: newProduct.description,
+        price: newProduct.price,
+        stock: newProduct.stock,
+        image: newProduct.image || '', // Add default empty string for image
+        suitable_for: newProduct.suitable_for,
+        targets: newProduct.targets,
+        when_to_apply: newProduct.when_to_apply
+      };
+      
+      await productAPI.create(productData);
+      toast({
+        title: 'Product created successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
+      fetchProducts();
+    } catch (error) {
+      console.error('Error creating product:', error);
+      toast({
+        title: 'Error creating product',
+        description: 'Please try again',
+        status: 'error',
+        duration: 3000,
         isClosable: true,
       });
     }

@@ -104,7 +104,7 @@ const Auth = () => {
   const [imageError, setImageError] = useState(false);
 
   const skinTypes: (keyof SkinType)[] = ['normal', 'dry', 'oily', 'combination', 'sensitive'];
-  const skinConcerns: (keyof SkinConcerns)[] = ['acne', 'wrinkles', 'darkSpots', 'redness', 'dryness', 'oiliness', 'sensitivity', 'aging'];
+  const skinConcerns: (keyof SkinConcerns)[] = ['acne', 'wrinkles', 'darkSpots', 'redness', 'dryness', 'oiliness', 'sensitivity', 'aging', 'pigmentation', 'dullness'];
 
   useEffect(() => {
     // Try to get the correct image path

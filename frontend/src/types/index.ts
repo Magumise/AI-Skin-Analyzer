@@ -55,4 +55,6 @@ export interface SkinConcerns {
   oiliness: boolean;
   sensitivity: boolean;
   aging: boolean;
+  pigmentation: boolean;
+  dullness: boolean;
 } 
