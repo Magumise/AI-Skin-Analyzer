@@ -1,3 +1,4 @@
+// Product data interface for the application
 export interface ProductData {
   id?: number;
   price: number;
@@ -10,4 +11,7 @@ export interface ProductData {
   suitable_for: string;
   targets: string;
   when_to_apply: string;
-} 
+}
+
+// Export as both named and default export for better compatibility
+export default ProductData; 
