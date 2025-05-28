@@ -137,6 +137,7 @@ const AdminDashboard = () => {
   }, []);
   
   const fetchProducts = async () => {
+    setIsLoading(true);
     try {
       const response = await productAPI.getAll();
       setProducts(response);
@@ -144,15 +145,18 @@ const AdminDashboard = () => {
       console.error('Error fetching products:', error);
       toast({
         title: "Error fetching products",
-        description: "Please try again",
+        description: error instanceof Error ? error.message : "Please try again",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   
   const fetchUsers = async () => {
+    setIsLoadingUsers(true);
     try {
       const response = await axios.get('http://localhost:8000/api/users/', {
         headers: {
@@ -165,38 +169,79 @@ const AdminDashboard = () => {
       console.error('Error fetching users:', error);
       toast({
         title: "Error fetching users",
-        description: "Please try again",
+        description: error instanceof Error ? error.message : "Please try again",
         status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const newData = { ...prev };
+      
+      // Handle numeric fields
+      if (name === 'price' || name === 'stock') {
+        newData[name] = value === '' ? '' : Number(value);
+      }
+      // Handle array fields
+      else if (name === 'suitable_for' || name === 'targets' || name === 'when_to_apply') {
+        newData[name] = value.split(',').map(item => item.trim());
+      }
+      // Handle all other fields
+      else {
+        newData[name] = value;
+      }
+      
+      return newData;
+    });
+  };
+  
+  const handleNumberInputChange = (name: string, value: string) => {
+    try {
+      const numValue = value === '' ? '' : Number(value);
+      if (isNaN(numValue as number) && value !== '') {
+        throw new Error('Invalid number');
+      }
+      setFormData(prev => ({ ...prev, [name]: value }));
+    } catch (error) {
+      console.error('Error handling number input:', error);
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid number',
+        status: 'error',
         duration: 3000,
         isClosable: true,
       });
     }
   };
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleNumberInputChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleUpdateProduct = async (productId: string | number) => {
+  const handleUpdateProduct = async (productId: number) => {
     try {
-      const productData = {
+      const productData: ProductData = {
         name: formData.name,
         brand: formData.brand,
         category: formData.category,
         description: formData.description,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
+        image: formData.image as string,
         suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
         targets: formData.targets.split(',').map(s => s.trim()),
-        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim()),
+        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
       };
       
-      const response = await productAPI.update(Number(productId), productData);
+      const response = await productAPI.update(productId, productData);
+      
+      // Update image if it's a File object
+      if (formData.image && typeof formData.image === 'object' && 'name' in formData.image) {
+        await handleUpdateProductImage(productId, formData.image as File);
+      }
+      
       return response;
     } catch (error) {
       console.error('Error updating product:', error);
@@ -204,64 +249,31 @@ const AdminDashboard = () => {
     }
   };
   
-  const handleUpdateProductImage = async (productId: string | number, imageFile: File) => {
+  const handleUpdateProductImage = async (productId: number, imageFile: File) => {
     try {
-      const response = await productAPI.updateProductImage(Number(productId), imageFile);
-      console.log('Product image updated successfully:', response.data);
-      return response.data;
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      await productAPI.updateProductImage(productId, formData);
     } catch (error) {
       console.error('Error updating product image:', error);
       throw error;
     }
   };
   
-  const handleImageChange = async (file: File) => {
-    try {
-      // Check file size (limit to 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
         toast({
-          title: "Image too large",
-          description: "Please select an image under 5MB",
-          status: "error",
+          title: 'Error',
+          description: 'Image size should be less than 5MB',
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
         return;
       }
-      
-      // If we're editing an existing product, update the image immediately
-      if (selectedProduct?.id) {
-        try {
-          await handleUpdateProductImage(selectedProduct.id, file);
-          toast({
-            title: "Image updated successfully",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        } catch (error) {
-          console.error('Error updating product image:', error);
-          toast({
-            title: "Failed to update product image",
-            description: error instanceof Error ? error.message : "Please try again",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-      }
-      
-      // Update the form data with the new image
-      setFormData(prev => ({ ...prev, image: URL.createObjectURL(file) }));
-    } catch (error) {
-      console.error('Error handling image change:', error);
-      toast({
-        title: "Error handling image",
-        description: error instanceof Error ? error.message : "Please try again",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      setFormData(prev => ({ ...prev, image: file }));
     }
   };
   
@@ -303,122 +315,29 @@ const AdminDashboard = () => {
     onOpen();
   };
   
-  const addProduct = async (productData: any) => {
-    try {
-      console.log('Adding new product:', productData);
-      
-      // Ensure ID is a string
-      const productDataCopy = { ...productData };
-      productDataCopy.id = String(productDataCopy.id);
-      
-      const response = await fetch('http://localhost:8000/api/products/add/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(productDataCopy),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to add product:', errorData);
-        throw new Error(errorData.error || 'Failed to add product');
-      }
-      
-      const data = await response.json();
-      console.log('Product added successfully:', data);
-      return data.product;
-    } catch (error) {
-      console.error('Error adding product:', error);
-      throw error;
-    }
-  };
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
     
     try {
-      const productData = {
-        name: formData.name,
-        brand: formData.brand,
-        category: formData.category,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
-        targets: formData.targets.split(',').map(s => s.trim()),
-        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim()),
-      };
-      
-      let updatedProduct;
-      
       if (selectedProduct) {
         // Update existing product
-        updatedProduct = await handleUpdateProduct(selectedProduct.id);
-        
-        // Update image if it has changed and is a File object
-        if (formData.image && typeof formData.image === 'object' && 'name' in formData.image) {
-          try {
-            await handleUpdateProductImage(selectedProduct.id, formData.image as File);
-            toast({
-              title: "Product updated successfully",
-              status: "success",
-              duration: 3000,
-              isClosable: true,
-            });
-          } catch (error) {
-            console.error('Error updating product image:', error);
-            toast({
-              title: "Error updating product image",
-              status: "error",
-              duration: 3000,
-              isClosable: true,
-            });
-          }
-        }
+        await handleUpdateProduct(selectedProduct.id);
+        toast({
+          title: "Product updated successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       } else {
         // Create new product
-        updatedProduct = await addProduct(productData);
-        
-        // Upload image if it's a File object
-        if (formData.image && typeof formData.image === 'object' && 'name' in formData.image) {
-          try {
-            await handleUpdateProductImage(updatedProduct.id, formData.image as File);
-            toast({
-              title: "Product added successfully",
-              status: "success",
-              duration: 3000,
-              isClosable: true,
-            });
-          } catch (error) {
-            console.error('Error uploading product image:', error);
-            toast({
-              title: "Error uploading product image",
-              status: "error",
-              duration: 3000,
-              isClosable: true,
-            });
-          }
-        }
+        await handleCreateProduct();
       }
 
       // Reset form and refresh products
-      setFormData({
-        price: '',
-        stock: '',
-        name: '',
-        brand: '',
-        category: '',
-        description: '',
-        image: '',
-        suitable_for: '',
-        targets: '',
-        when_to_apply: '',
-      });
-      setSelectedProduct(null);
+      resetForm();
       fetchProducts();
+      onClose();
     } catch (error) {
       console.error('Error submitting form:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -430,22 +349,31 @@ const AdminDashboard = () => {
         isClosable: true,
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
   
-  const handleDeleteProduct = (id: number) => {
-    // Simulate API call (in a real app, this would be an actual API call)
-    const updatedProducts = products.filter(p => p.id !== id);
-    setProducts(updatedProducts);
-    
-    toast({
-      title: 'Product deleted',
-      description: 'Product has been deleted successfully',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
+  const handleDeleteProduct = async (id: number) => {
+    try {
+      await productAPI.delete(id);
+      setProducts(products.filter(p => p.id !== id));
+      toast({
+        title: 'Product deleted',
+        description: 'Product has been deleted successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: 'Error deleting product',
+        description: error instanceof Error ? error.message : 'Failed to delete product',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   const handleDeleteUser = async (userId: number) => {
@@ -465,11 +393,11 @@ const AdminDashboard = () => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting user:', error);
       toast({
         title: 'Error deleting user',
-        description: error.message || 'Failed to delete user',
+        description: error instanceof Error ? error.message : 'Failed to delete user',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -499,11 +427,11 @@ const AdminDashboard = () => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating user status:', error);
       toast({
         title: 'Error updating user status',
-        description: error.message || 'Failed to update user status',
+        description: error instanceof Error ? error.message : 'Failed to update user status',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -513,33 +441,22 @@ const AdminDashboard = () => {
 
   const handleCreateProduct = async () => {
     try {
-      const productData: ProductData = {
-        name: formData.name,
-        brand: formData.brand,
-        category: formData.category,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        image: formData.image as string,
-        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
-        targets: formData.targets.split(',').map(s => s.trim()),
-        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
-      };
-      
-      await productAPI.create(productData);
+      const newProduct = await productAPI.create(formData);
+      setProducts(prev => [...prev, newProduct]);
       toast({
-        title: 'Product created successfully',
+        title: 'Success',
+        description: 'Product created successfully',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
       onClose();
-      fetchProducts();
+      resetForm();
     } catch (error) {
       console.error('Error creating product:', error);
       toast({
-        title: 'Error creating product',
-        description: 'Please try again',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to create product',
         status: 'error',
         duration: 3000,
         isClosable: true,
