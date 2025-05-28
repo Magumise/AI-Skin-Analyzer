@@ -10,7 +10,7 @@ services:
       python manage.py migrate
       python manage.py collectstatic --noinput
       echo "Deployment triggered at $(date)"
-    startCommand: cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120 --log-level info
+    startCommand: cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --keep-alive 5 --log-level info
     envVars:
       - key: DEBUG
         value: false
@@ -50,9 +50,15 @@ services:
         value: Content-Type,X-CSRFToken
       - key: CORS_PREFLIGHT_MAX_AGE
         value: 86400
+    healthCheckPath: /api/ping
+    autoDeploy: true
+    plan: free
+    scaling:
+      minInstances: 1
+      maxInstances: 1
 
 databases:
   - name: ai-skin-analyzer-db
     databaseName: ai_skin_analyzer
-    user: ai_skin_analyzer_user
+    user: ai_skin_skin_analyzer_user
     plan: free 
