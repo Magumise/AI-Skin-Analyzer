@@ -48,6 +48,11 @@ interface SkinConcerns {
   pigmentation: boolean;
   redness: boolean;
   dullness: boolean;
+  wrinkles: boolean;
+  darkSpots: boolean;
+  dryness: boolean;
+  oiliness: boolean;
+  sensitivity: boolean;
 }
 
 interface FormData {
@@ -96,7 +101,12 @@ const Auth = () => {
       aging: false,
       pigmentation: false,
       redness: false,
-      dullness: false
+      dullness: false,
+      wrinkles: false,
+      darkSpots: false,
+      dryness: false,
+      oiliness: false,
+      sensitivity: false
     }
   });
 

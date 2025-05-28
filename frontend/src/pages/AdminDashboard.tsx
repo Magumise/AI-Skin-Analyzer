@@ -92,7 +92,7 @@ interface FormData {
   brand: string;
   category: string;
   description: string;
-  image: File | string;
+  image: string | File;
   suitable_for: string;
   targets: string;
   when_to_apply: string;
@@ -260,21 +260,11 @@ const AdminDashboard = () => {
     }
   };
   
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
-          title: 'Error',
-          description: 'Image size should be less than 5MB',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
-      setFormData(prev => ({ ...prev, image: file }));
-    }
+  const handleImageChange = (file: File) => {
+    setFormData(prev => ({
+      ...prev,
+      image: file
+    }));
   };
   
   const resetForm = () => {

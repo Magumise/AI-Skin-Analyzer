@@ -41,6 +41,11 @@ export interface User {
   email: string;
   name: string;
   role: 'user' | 'admin';
+  is_active: boolean;
+  first_name: string;
+  last_name: string;
+  age?: number;
+  last_skin_condition?: string;
 }
 
 export interface AuthResponse {
