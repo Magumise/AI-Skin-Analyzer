@@ -83,6 +83,64 @@ api.interceptors.response.use(
   }
 );
 
+// Product API methods
+export const productAPI = {
+  // Get all products
+  getAll: async () => {
+    try {
+      const response = await api.get('/products/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+  },
+
+  // Get a single product
+  getOne: async (id: number) => {
+    try {
+      const response = await api.get(`/products/${id}/`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching product ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Create a new product
+  create: async (productData: ProductData) => {
+    try {
+      const response = await api.post('/products/', productData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+  },
+
+  // Update a product
+  update: async (id: number, productData: ProductData) => {
+    try {
+      const response = await api.put(`/products/${id}/`, productData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating product ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Delete a product
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/products/${id}/`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting product ${id}:`, error);
+      throw error;
+    }
+  }
+};
+
 // Authentication API methods
 export const authAPI = {
   // Register new user
@@ -145,6 +203,17 @@ export const authAPI = {
       console.error('Token verification error:', error);
       throw error;
     }
+  }
+};
+
+// Test AI Model endpoint
+export const testAIModel = async () => {
+  try {
+    const response = await api.get('/test-ai-model/');
+    return response.data;
+  } catch (error) {
+    console.error('Error testing AI model endpoint:', error);
+    throw error;
   }
 };
 
