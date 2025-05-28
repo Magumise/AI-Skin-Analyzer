@@ -138,6 +138,24 @@ export const productAPI = {
       console.error(`Error deleting product ${id}:`, error);
       throw error;
     }
+  },
+
+  // Update product image
+  updateProductImage: async (id: number, imageFile: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      
+      const response = await api.patch(`/products/${id}/image/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating product image ${id}:`, error);
+      throw error;
+    }
   }
 };
 

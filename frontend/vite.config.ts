@@ -35,7 +35,6 @@ export default defineConfig({
     exclude: ['@types/react', '@types/react-dom']
   },
   esbuild: {
-    jsxInject: `import React from 'react'`,
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
   },

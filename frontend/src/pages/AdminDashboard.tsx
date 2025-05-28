@@ -464,9 +464,10 @@ const AdminDashboard = () => {
       fetchProducts();
     } catch (error) {
       console.error('Error submitting form:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error saving product",
-        description: "Please try again",
+        description: errorMessage,
         status: "error",
         duration: 3000,
         isClosable: true,
