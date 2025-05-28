@@ -9,6 +9,7 @@ services:
       python manage.py makemigrations
       python manage.py migrate
       python manage.py collectstatic --noinput
+      python backend/create_superuser.py
       echo "Deployment triggered at $(date)"
     startCommand: cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --keep-alive 5 --log-level info
     envVars:
@@ -50,6 +51,12 @@ services:
         value: Content-Type,X-CSRFToken
       - key: CORS_PREFLIGHT_MAX_AGE
         value: 86400
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@example.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: Admin@2024!
+      - key: PYTHON_VERSION
+        value: 3.10.0
     healthCheckPath: /api/ping
     autoDeploy: true
     plan: free
