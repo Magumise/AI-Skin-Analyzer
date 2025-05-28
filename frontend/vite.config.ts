@@ -37,4 +37,9 @@ export default defineConfig({
     jsxFragment: 'React.Fragment',
   },
   base: '/',
+  // Add TypeScript specific configuration
+  typescript: {
+    tsconfigPath: './tsconfig.json',
+    include: ['src/**/*.ts', 'src/**/*.tsx'],
+  }
 }) 
