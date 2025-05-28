@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ProductData } from '../types/ProductData';
 
 // API configuration
 const API_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
@@ -81,18 +82,6 @@ api.interceptors.response.use(
     return Promise.reject(new Error(errorMessage));
   }
 );
-
-// Add ProductData interface
-interface ProductData {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  brand: string;
-  category: string;
-  stock: number;
-  image?: string;
-}
 
 // Authentication API methods
 export const authAPI = {
