@@ -8,9 +8,10 @@ psycopg2-binary>=2.9.9
 python-dotenv>=1.0.0
 requests>=2.31.0
 numpy>=1.24.0
-torch==2.0.0
-torchvision==0.15.0
-torchaudio==2.0.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.0.0+cpu
+torchvision==0.15.0+cpu
+torchaudio==2.0.0+cpu
 transformers>=4.30.0
 python-magic>=0.4.27
 whitenoise>=6.5.0
