@@ -12,6 +12,19 @@ export interface Product {
   when_to_apply: string[];
 }
 
+export interface ProductData {
+  name: string;
+  brand: string;
+  category: string;
+  description: string;
+  price: number;
+  stock: number;
+  image: string;
+  suitable_for: string[];
+  targets: string[];
+  when_to_apply: string[];
+}
+
 export interface AnalysisResult {
   conditions: string[];
   recommendations: string[];

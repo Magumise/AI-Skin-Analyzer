@@ -154,7 +154,12 @@ const AdminDashboard = () => {
   
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/users/');
+      const response = await axios.get('http://localhost:8000/api/users/', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
