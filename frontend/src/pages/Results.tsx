@@ -69,7 +69,7 @@ const Results = () => {
   // Get recommended products from the AI model
   const recommendedProducts = result.products || [];
   
-  const handleProductClick = (product: Product) => {
+  const handleProductClick = (product: Product): void => {
     // Handle product click
     console.log('Product clicked:', product);
   };

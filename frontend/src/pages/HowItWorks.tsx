@@ -14,8 +14,18 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Flex,
 } from '@chakra-ui/react';
-import { FaCamera, FaRobot, FaUserMd, FaShoppingBag } from 'react-icons/fa';
+import { 
+  FaCamera, 
+  FaRobot, 
+  FaUserMd, 
+  FaShoppingBag,
+  FaChartBar,
+  FaUpload,
+  FaShoppingCart,
+  FaArrowRight 
+} from 'react-icons/fa';
 import './HowItWorks.css';
 import Navigation from '../components/Navigation';
 
