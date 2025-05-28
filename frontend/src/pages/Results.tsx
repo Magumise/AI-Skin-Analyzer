@@ -28,7 +28,7 @@ import {
   ListIcon,
 } from '@chakra-ui/react';
 import { FaShoppingCart, FaArrowLeft, FaCheckCircle, FaExclamationTriangle, FaUserMd } from 'react-icons/fa';
-import { Product, AnalysisResult } from '../types';
+import { Product, AnalysisResult } from '../types/index';
 import './Results.css';
 
 const Results = () => {
@@ -235,7 +235,7 @@ const Results = () => {
               <CardBody>
                 {recommendedProducts.length > 0 ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-                    {recommendedProducts.map((product) => (
+                    {recommendedProducts.map((product: Product) => (
                       <Card 
                         key={product.id}
                         borderRadius="xl" 

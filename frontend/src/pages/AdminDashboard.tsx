@@ -116,90 +116,34 @@ const AdminDashboard = () => {
   }, []);
   
   const fetchProducts = async () => {
-    setIsLoading(true);
     try {
-      console.log('Fetching products from server...');
-      const response = await productAPI.get('/api/products/', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Server response:', response);
-      
-      if (!response.data) {
-        throw new Error('No data received from server');
-      }
-      
-      setProducts(response.data);
+      const response = await productAPI.getAll();
+      setProducts(response);
+    } catch (error) {
+      console.error('Error fetching products:', error);
       toast({
-        title: 'Products loaded',
-        description: `Successfully loaded ${response.data.length} products`,
-        status: 'success',
+        title: "Error fetching products",
+        description: "Please try again",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
-    } catch (error: any) {
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response,
-        request: error.request,
-        config: error.config
-      });
-      
-      let errorMessage = 'Failed to load products from the server';
-      if (error.response) {
-        errorMessage = `Server error: ${error.response.status} - ${error.response.statusText}`;
-        if (error.response.status === 401) {
-          navigate('/admin/login');
-          return;
-        }
-      } else if (error.request) {
-        errorMessage = 'No response received from server. Please check if the server is running.';
-      } else {
-        errorMessage = `Error: ${error.message}`;
-      }
-      
-      toast({
-        title: 'Error loading products',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
   
   const fetchUsers = async () => {
-    setIsLoadingUsers(true);
     try {
-      const response = await productAPI.get('/api/users/', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await api.get('/users/');
       setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
       toast({
-        title: 'Users loaded',
-        description: `Successfully loaded ${response.data.length} users`,
-        status: 'success',
+        title: "Error fetching users",
+        description: "Please try again",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
-    } catch (error: any) {
-      console.error('Error loading users:', error);
-      toast({
-        title: 'Error loading users',
-        description: error.message || 'Failed to load users',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsLoadingUsers(false);
     }
   };
   
@@ -214,36 +158,23 @@ const AdminDashboard = () => {
   
   const handleUpdateProduct = async (productId: string | number) => {
     try {
-      setIsLoading(true);
-      const productData: ProductData = {
-        price: Number(formData.price),
-        stock: Number(formData.stock),
+      const productData = {
         name: formData.name,
         brand: formData.brand,
         category: formData.category,
         description: formData.description,
-        image: formData.image,
-        suitable_for: formData.suitable_for,
-        targets: formData.targets,
-        when_to_apply: formData.when_to_apply,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
+        targets: formData.targets.split(',').map(s => s.trim()),
+        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim()),
       };
-
-      const response = await productAPI.updateProduct(Number(productId), productData);
-      console.log('Product updated successfully:', response.data);
-      return response.data;
-    } catch (error: any) {
+      
+      const response = await productAPI.update(Number(productId), productData);
+      return response;
+    } catch (error) {
       console.error('Error updating product:', error);
-      if (error.response?.status === 401) {
-        // Token expired or invalid
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        navigate('/admin/login');
-        throw new Error('Session expired. Please login again.');
-      } else if (error.response?.status === 403) {
-        throw new Error('You do not have permission to update products.');
-      } else {
-        throw new Error(error.response?.data?.error || 'Failed to update product');
-      }
+      throw error;
     }
   };
   
@@ -381,30 +312,30 @@ const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
+    
     try {
-      let updatedProduct;
-      const productData: ProductData = {
-        price: Number(formData.price),
-        stock: Number(formData.stock),
+      const productData = {
         name: formData.name,
         brand: formData.brand,
         category: formData.category,
         description: formData.description,
-        image: formData.image,
-        suitable_for: formData.suitable_for,
-        targets: formData.targets,
-        when_to_apply: formData.when_to_apply,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
+        targets: formData.targets.split(',').map(s => s.trim()),
+        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim()),
       };
-
+      
+      let updatedProduct;
+      
       if (selectedProduct) {
         // Update existing product
         updatedProduct = await handleUpdateProduct(selectedProduct.id);
         
         // Update image if it has changed and is a File object
-        if (formData.image instanceof File) {
+        if (formData.image && typeof formData.image === 'object' && 'name' in formData.image) {
           try {
-            await handleUpdateProductImage(selectedProduct.id, formData.image);
+            await handleUpdateProductImage(selectedProduct.id, formData.image as File);
             toast({
               title: "Product updated successfully",
               status: "success",
@@ -426,9 +357,9 @@ const AdminDashboard = () => {
         updatedProduct = await addProduct(productData);
         
         // Upload image if it's a File object
-        if (formData.image instanceof File) {
+        if (formData.image && typeof formData.image === 'object' && 'name' in formData.image) {
           try {
-            await handleUpdateProductImage(updatedProduct.id, formData.image);
+            await handleUpdateProductImage(updatedProduct.id, formData.image as File);
             toast({
               title: "Product added successfully",
               status: "success",
