@@ -82,6 +82,18 @@ api.interceptors.response.use(
   }
 );
 
+// Add ProductData interface
+interface ProductData {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  brand: string;
+  category: string;
+  stock: number;
+  image?: string;
+}
+
 // Authentication API methods
 export const authAPI = {
   // Register new user
