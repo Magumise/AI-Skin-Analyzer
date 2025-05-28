@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API configuration
-const API_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-nyy1.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
 
 // Create axios instance with default config
 const api = axios.create({

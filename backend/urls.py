@@ -23,13 +23,21 @@ from rest_framework.schemas import get_schema_view
 from rest_framework.permissions import AllowAny
 
 urlpatterns = [
+    # API Documentation
     path('', include_docs_urls(
         title='AI Skin Analyzer API',
+        description='API documentation for AI Skin Analyzer',
         permission_classes=[AllowAny]
     )),
     path('schema/', get_schema_view(
         title='AI Skin Analyzer API Schema',
+        description='API schema for AI Skin Analyzer',
         permission_classes=[AllowAny]
     )),
+    
+    # API Endpoints
     path('api/', include('skin_analyzer.urls')),
+    
+    # Admin Interface
+    path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

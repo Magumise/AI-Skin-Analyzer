@@ -1,12 +1,13 @@
 from django.shortcuts import render
 import requests
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, UploadedImage, AnalysisResult, Product, Appointment
 from .serializers import (
     UserSerializer, UploadedImageSerializer, AnalysisResultSerializer,
@@ -24,15 +25,45 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
     def get_permissions(self):
         """
-        Allow registration and listing without authentication
+        Allow registration (create), listing (list), and test endpoint without authentication.
+        Also allow for explicit 'register' action if routed.
         """
-        if self.action in ['create', 'list']:
+        if self.action in ['create', 'list', 'test'] or self.request.path.endswith('/register/'):
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
+
+    def create(self, request, *args, **kwargs):
+        """
+        Custom create method for user registration
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'user': serializer.data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def test(self, request):
+        """
+        Test endpoint to verify API is working
+        """
+        return Response({
+            "status": "success",
+            "message": "API is working correctly"
+        })
 
     def get_queryset(self):
         queryset = User.objects.all()
@@ -44,26 +75,6 @@ class UserViewSet(viewsets.ModelViewSet):
             else:
                 user.last_skin_condition = 'No analysis yet'
         return queryset
-
-    def create(self, request, *args, **kwargs):
-        """
-        Custom create method for user registration
-        """
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        
-        # Generate JWT tokens
-        from rest_framework_simplejwt.tokens import RefreshToken
-        refresh = RefreshToken.for_user(user)
-        
-        return Response({
-            'user': serializer.data,
-            'tokens': {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
-        }, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         """
@@ -184,9 +195,9 @@ class ProductViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy', 'update_image']:
-            return [permissions.IsAuthenticated()]
-        return [permissions.AllowAny()]
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def list(self, request, *args, **kwargs):
         try:
@@ -248,3 +259,21 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return Appointment.objects.all()
         return Appointment.objects.filter(user=self.request.user)
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        print('DEBUG: RegisterView.create called')
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': serializer.data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_201_CREATED)
