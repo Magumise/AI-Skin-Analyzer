@@ -7,24 +7,20 @@ import {
   Text,
   VStack,
   HStack,
-  Image,
   Button,
-  SimpleGrid,
+  useColorModeValue,
   Icon,
-  Flex,
+  SimpleGrid,
   Card,
   CardBody,
   CardHeader,
-  useBreakpointValue,
-  useColorModeValue,
 } from '@chakra-ui/react';
-import { FaCamera, FaUpload, FaChartBar, FaShoppingCart, FaArrowRight } from 'react-icons/fa';
+import { FaCamera, FaRobot, FaUserMd, FaShoppingBag } from 'react-icons/fa';
 import './HowItWorks.css';
 import Navigation from '../components/Navigation';
 
 const HowItWorks = () => {
   const navigate = useNavigate();
-  const isDesktop = useBreakpointValue({ base: false, lg: true });
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 

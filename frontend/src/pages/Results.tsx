@@ -23,8 +23,12 @@ import {
   useColorModeValue,
   Alert,
   AlertIcon,
+  List,
+  ListItem,
+  ListIcon,
 } from '@chakra-ui/react';
 import { FaShoppingCart, FaArrowLeft, FaCheckCircle, FaExclamationTriangle, FaUserMd } from 'react-icons/fa';
+import { Product, AnalysisResult } from '../types';
 import './Results.css';
 
 const Results = () => {
@@ -33,7 +37,7 @@ const Results = () => {
   const isDesktop = useBreakpointValue({ base: false, lg: true });
   
   // Get data from navigation state
-  const { result, image } = location.state || { result: null, image: null };
+  const { result, image } = location.state as { result: AnalysisResult; image: string };
   
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -64,6 +68,11 @@ const Results = () => {
   
   // Get recommended products from the AI model
   const recommendedProducts = result.products || [];
+  
+  const handleProductClick = (product: Product) => {
+    // Handle product click
+    console.log('Product clicked:', product);
+  };
   
   return (
     <Box className="app-container">

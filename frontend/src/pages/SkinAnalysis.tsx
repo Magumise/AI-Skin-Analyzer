@@ -15,9 +15,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  CardFooter,
-  Spinner,
-  Center,
   Alert,
   AlertIcon,
   Tabs,
@@ -26,14 +23,12 @@ import {
   Tab,
   TabPanel,
   Icon,
-  Flex,
   List,
   ListItem,
   ListIcon,
-  Divider,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { FaCamera, FaUpload, FaCheck, FaLightbulb, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCamera, FaUpload, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 import './SkinAnalysis.css';
 import { API_URL } from '../config';
