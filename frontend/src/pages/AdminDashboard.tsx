@@ -83,7 +83,7 @@ import axios from 'axios';
 import './AdminDashboard.css';
 import ProductImage from '../components/ProductImage';
 import { productAPI } from '../services/api';
-import { Product, ProductData } from '../types/index';
+import { Product, ProductData, User } from '../types/index';
 
 interface FormData {
   price: string;
@@ -98,8 +98,8 @@ interface FormData {
   when_to_apply: string;
 }
 
-// Initial empty products array (will be populated from API)
-const initialProducts: any[] = [];
+// Initial empty products array with proper typing
+const initialProducts: Product[] = [];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -107,11 +107,11 @@ const AdminDashboard = () => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   
-  const [products, setProducts] = useState(initialProducts);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     brand: 'Aurora Beauty',
     category: '',
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
     when_to_apply: ''
   });
   
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -286,7 +286,7 @@ const AdminDashboard = () => {
     onOpen();
   };
   
-  const openEditProductModal = (product: any) => {
+  const openEditProductModal = (product: Product) => {
     setSelectedProduct(product);
     setFormData({
       name: product.name || '',
@@ -514,16 +514,16 @@ const AdminDashboard = () => {
   const handleCreateProduct = async () => {
     try {
       const productData: ProductData = {
-        name: newProduct.name,
-        brand: newProduct.brand,
-        category: newProduct.category,
-        description: newProduct.description,
-        price: newProduct.price,
-        stock: newProduct.stock,
-        image: newProduct.image || '', // Add default empty string for image
-        suitable_for: newProduct.suitable_for,
-        targets: newProduct.targets,
-        when_to_apply: newProduct.when_to_apply
+        name: formData.name,
+        brand: formData.brand,
+        category: formData.category,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        image: formData.image as string,
+        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
+        targets: formData.targets.split(',').map(s => s.trim()),
+        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
       };
       
       await productAPI.create(productData);
