@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     UserViewSet, UploadedImageViewSet, ProductViewSet, AppointmentViewSet,
-    EmailTokenObtainPairView, RegisterView
+    EmailTokenObtainPairView, RegisterView, LoginView
 )
 
 # Create a router and register our viewsets with it
@@ -27,4 +27,6 @@ urlpatterns = [
     
     # Add a test endpoint
     path('test/', UserViewSet.as_view({'get': 'test'}), name='test'),
+
+    path('users/login/', LoginView.as_view(), name='user-login'),
 ] 
