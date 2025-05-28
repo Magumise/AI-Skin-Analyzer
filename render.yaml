@@ -1,62 +1,21 @@
 services:
   - type: web
-    name: ai-skin-analyzer-backend
+    name: ai-skin-analyzer
     env: python
-    runtime: python3.11
     buildCommand: |
-      cd backend
       pip install -r requirements.txt
-      python manage.py makemigrations
       python manage.py migrate
-      python manage.py collectstatic --noinput
       python backend/create_superuser.py
-      echo "Deployment triggered at $(date)"
-    startCommand: cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --keep-alive 5 --log-level info
+    startCommand: gunicorn backend.wsgi:application
     envVars:
-      - key: DEBUG
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
         value: false
-      - key: ALLOWED_HOSTS
-        value: ai-skin-analyzer-nw9c.onrender.com,localhost,127.0.0.1
-      - key: CORS_ALLOWED_ORIGINS
-        value: http://localhost:5173,http://127.0.0.1:5173,https://ai-skin-analyzer-nw9c.onrender.com
-      - key: SECRET_KEY
-        value: django-insecure-BPnp%5x4_b8j9vkWtHh5utiA-T8Fa-OEE8rrJ6wj5WbK#Kx@kS
-      - key: PYTHONPATH
-        value: /opt/render/project/src
-      - key: DJANGO_SETTINGS_MODULE
-        value: backend.settings
-      - key: STATIC_ROOT
-        value: /opt/render/project/src/backend/staticfiles
-      - key: STATIC_URL
-        value: /static/
-      - key: MEDIA_ROOT
-        value: /opt/render/project/src/backend/media
-      - key: MEDIA_URL
-        value: /media/
-      - key: AI_SERVICE_URL
-        value: https://us-central1-aurora-457407.cloudfunctions.net/predict
-      - key: SECURE_SSL_REDIRECT
-        value: true
-      - key: SESSION_COOKIE_SECURE
-        value: true
-      - key: CSRF_COOKIE_SECURE
-        value: true
-      - key: DATABASE_URL
-        value: postgres://postgres:Dante@2025@db.ysezicwpvxpyoinljhaf.supabase.co:5432/
-      - key: CORS_ALLOW_CREDENTIALS
-        value: true
-      - key: CORS_ORIGIN_ALLOW_ALL
-        value: false
-      - key: CORS_EXPOSE_HEADERS
-        value: Content-Type,X-CSRFToken
-      - key: CORS_PREFLIGHT_MAX_AGE
-        value: 86400
       - key: DJANGO_SUPERUSER_EMAIL
         value: admin@example.com
       - key: DJANGO_SUPERUSER_PASSWORD
         value: Admin@2024!
-      - key: PYTHON_VERSION
-        value: 3.10.0
     healthCheckPath: /api/ping
     autoDeploy: true
     plan: free
