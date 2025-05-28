@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect
+from rest_framework.documentation import include_docs_urls
+from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
-    path('', lambda request: redirect('admin:index'), name='root'),
-    path('admin/', admin.site.urls),
+    path('', include_docs_urls(title='AI Skin Analyzer API')),
+    path('schema/', get_schema_view(title='AI Skin Analyzer API Schema')),
     path('api/', include('skin_analyzer.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
