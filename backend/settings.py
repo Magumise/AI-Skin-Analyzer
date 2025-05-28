@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-8f7d3b2a1c9e6f4a5b8
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
-    'ai-skin-analyzer-nyy1.onrender.com',
+    'ai-skin-analyzer-vmlu.onrender.com',
     'localhost',
     '127.0.0.1',
     'frontend-two-mu-37.vercel.app',
@@ -216,7 +216,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://frontend-two-mu-37.vercel.app",
     "https://ai-skin-analyzer.vercel.app",
-    "https://ai-skin-analyzer-nyy1.onrender.com"
+    "https://ai-skin-analyzer-vmlu.onrender.com"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -292,5 +292,5 @@ SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
 CSRF_TRUSTED_ORIGINS = [
     "https://frontend-two-mu-37.vercel.app",
     "https://ai-skin-analyzer.vercel.app",
-    "https://ai-skin-analyzer-nyy1.onrender.com"
+    "https://ai-skin-analyzer-vmlu.onrender.com"
 ]
