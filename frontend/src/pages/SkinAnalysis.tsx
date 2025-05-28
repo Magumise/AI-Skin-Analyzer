@@ -36,6 +36,7 @@ import {
 import { FaCamera, FaUpload, FaCheck, FaLightbulb, FaExclamationTriangle } from 'react-icons/fa';
 import axios from 'axios';
 import './SkinAnalysis.css';
+import { API_URL } from '../config';
 
 const SkinAnalysis = () => {
   const navigate = useNavigate();
