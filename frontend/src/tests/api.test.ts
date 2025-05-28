@@ -86,6 +86,48 @@ const testInvalidLogin = async (): Promise<boolean> => {
   }
 };
 
+// Test API connection
+const testAPIConnection = async () => {
+  try {
+    console.log('🧪 Testing API connection...');
+    const testUser = {
+      email: `test${Date.now()}@example.com`,
+      password: 'Test@123456',
+      username: `testuser${Date.now()}`,
+      first_name: 'Test',
+      last_name: 'User'
+    };
+
+    // Test registration
+    console.log('Attempting registration...');
+    const registerResponse = await authAPI.register(testUser);
+    console.log('✅ Registration successful:', registerResponse);
+
+    // Test login
+    console.log('Attempting login...');
+    const loginResponse = await authAPI.login({
+      email: testUser.email,
+      password: testUser.password
+    });
+    console.log('✅ Login successful:', loginResponse);
+
+    // Test token verification
+    console.log('Verifying token...');
+    const verifyResponse = await authAPI.verifyToken();
+    console.log('✅ Token verification successful:', verifyResponse);
+
+    // Test logout
+    console.log('Testing logout...');
+    const logoutResponse = await authAPI.logout();
+    console.log('✅ Logout successful:', logoutResponse);
+
+    return true;
+  } catch (error) {
+    console.error('❌ API Test failed:', error);
+    return false;
+  }
+};
+
 // Run all tests
 export const runTests = async (): Promise<void> => {
   console.log('🚀 Starting API test suite...');
@@ -130,6 +172,20 @@ export const runTests = async (): Promise<void> => {
     throw error;
   }
 };
+
+// Run the test
+export const runAPITest = async () => {
+  console.log('🚀 Starting API test...');
+  const result = await testAPIConnection();
+  if (result) {
+    console.log('🎉 All API tests passed successfully!');
+  } else {
+    console.error('❌ API tests failed');
+  }
+  return result;
+};
+
+export default runAPITest;
 
 // Export individual test functions for use in other components
 export {

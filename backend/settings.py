@@ -28,7 +28,13 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-8f7d3b2a1c9e6f4a5b8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'ai-skin-analyzer-nw9c.onrender.com,localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [
+    'ai-skin-analyzer-nw9c.onrender.com',
+    'localhost',
+    '127.0.0.1',
+    'frontend-two-mu-37.vercel.app',
+    'ai-skin-analyzer.vercel.app'
+]
 
 
 # Application definition
@@ -205,7 +211,13 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,https://ai-skin-analyzer-nw9c.onrender.com,https://frontend-two-mu-37.vercel.app').split(',')
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://frontend-two-mu-37.vercel.app",
+    "https://ai-skin-analyzer.vercel.app",
+    "https://ai-skin-analyzer-nw9c.onrender.com"
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -275,3 +287,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
+
+# CSRF settings
+CSRF_TRUSTED_ORIGINS = [
+    "https://frontend-two-mu-37.vercel.app",
+    "https://ai-skin-analyzer.vercel.app",
+    "https://ai-skin-analyzer-nw9c.onrender.com"
+]
