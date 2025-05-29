@@ -32,4 +32,16 @@ databases:
   - name: ai-skin-analyzer-db
     databaseName: ai_skin_analyzer
     user: ai_skin_skin_analyzer_user
-    plan: free 
+    plan: free
+
+  - type: web
+    name: ai-skin-analyzer-proxy
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+    plan: free
+    autoDeploy: true 

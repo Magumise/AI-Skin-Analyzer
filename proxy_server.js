@@ -9,10 +9,11 @@ const upload = multer();
 
 // Enable CORS for all routes
 app.use(cors());
-app.use(express.json());
 
-// Serve static files
-app.use(express.static('.'));
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 app.post('/predict', upload.single('file'), async (req, res) => {
     try {
@@ -35,7 +36,8 @@ app.post('/predict', upload.single('file'), async (req, res) => {
                 headers: {
                     ...formData.getHeaders(),
                     'Accept': 'application/json'
-                }
+                },
+                timeout: 120000 // 120 seconds timeout
             }
         );
 
@@ -46,7 +48,7 @@ app.post('/predict', upload.single('file'), async (req, res) => {
     }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Proxy server running on port ${PORT}`);
 }); 
