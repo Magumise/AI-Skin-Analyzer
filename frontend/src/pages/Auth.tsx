@@ -264,6 +264,7 @@ const Auth = () => {
 
         // Register
         const response = await authAPI.register({
+          email: formData.email.trim(),
           first_name: formData.firstName.trim(),
           last_name: formData.lastName.trim(),
           username: formData.username.trim(),
