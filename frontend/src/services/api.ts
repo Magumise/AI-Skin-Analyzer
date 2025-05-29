@@ -227,12 +227,16 @@ export const authAPI = {
       if (!token) {
         throw new Error('No token available');
       }
+      // Send token in the request body as expected by the backend
       const response = await api.post('/users/token/verify/', { token });
       return response.data;
     } catch (error) {
       console.error('Token verification error:', error);
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      // Only clear tokens if it's an authentication error
+      if (error.response?.status === 401 || error.response?.status === 400) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+      }
       throw error;
     }
   },
