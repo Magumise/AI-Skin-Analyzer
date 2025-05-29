@@ -96,6 +96,7 @@ interface FormData {
   suitable_for: string;
   targets: string;
   when_to_apply: string;
+  [key: string]: string | File;
 }
 
 // Initial empty products array with proper typing
@@ -224,7 +225,7 @@ const AdminDashboard = () => {
         description: formData.description,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        image: formData.image as string,
+        image: typeof formData.image === 'string' ? formData.image : '',
         suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
         targets: formData.targets.split(',').map(s => s.trim()),
         when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
@@ -233,8 +234,8 @@ const AdminDashboard = () => {
       const response = await productAPI.update(productId, productData);
       
       // Update image if it's a File object
-      if (formData.image && typeof formData.image === 'object' && 'name' in formData.image) {
-        await handleUpdateProductImage(productId, formData.image as File);
+      if (formData.image instanceof File) {
+        await handleUpdateProductImage(productId, formData.image);
       }
       
       return response;
@@ -246,9 +247,7 @@ const AdminDashboard = () => {
   
   const handleUpdateProductImage = async (productId: number, imageFile: File) => {
     try {
-      const formData = new FormData();
-      formData.append('image', imageFile);
-      await productAPI.updateProductImage(productId, formData);
+      await productAPI.updateProductImage(productId, imageFile);
     } catch (error) {
       console.error('Error updating product image:', error);
       throw error;
@@ -293,9 +292,9 @@ const AdminDashboard = () => {
       price: product.price?.toString() || '',
       image: product.image || '',
       stock: product.stock?.toString() || '',
-      suitable_for: product.suitable_for || '',
-      targets: product.targets || '',
-      when_to_apply: product.when_to_apply || ''
+      suitable_for: Array.isArray(product.suitable_for) ? product.suitable_for.join(', ') : product.suitable_for || '',
+      targets: Array.isArray(product.targets) ? product.targets.join(', ') : product.targets || '',
+      when_to_apply: Array.isArray(product.when_to_apply) ? product.when_to_apply.join(', ') : product.when_to_apply || ''
     });
     onOpen();
   };
@@ -416,7 +415,20 @@ const AdminDashboard = () => {
 
   const handleCreateProduct = async () => {
     try {
-      const newProduct = await productAPI.create(formData);
+      const productData: ProductData = {
+        name: formData.name,
+        brand: formData.brand,
+        category: formData.category,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        image: typeof formData.image === 'string' ? formData.image : '',
+        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
+        targets: formData.targets.split(',').map(s => s.trim()),
+        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
+      };
+
+      const newProduct = await productAPI.create(productData);
       setProducts(prev => [...prev, newProduct]);
       toast({
         title: 'Success',
