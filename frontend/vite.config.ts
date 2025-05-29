@@ -5,7 +5,7 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/',
   server: {
     port: 3000,
     host: true
@@ -28,9 +28,19 @@ export default defineConfig({
           chakra: ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
           icons: ['react-icons/fa', '@chakra-ui/icons'],
         },
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/\.(png|jpe?g|gif|svg|webp)$/.test(assetInfo.name)) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          if (/\.css$/.test(assetInfo.name)) {
+            return `assets/css/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
       },
     },
     chunkSizeWarningLimit: 1000,
