@@ -11,7 +11,7 @@ export interface ProductData {
   suitable_for: string[];
   targets: string[];
   when_to_apply: string[];
-  [key: string]: string | number | File | string[] | undefined;
+  [key: string]: any; // relaxed typing for FormData compatibility
 }
 
 // Export as both named and default export for better compatibility

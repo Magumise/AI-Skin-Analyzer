@@ -84,7 +84,8 @@ import './AdminDashboard.css';
 import ProductImage from '../components/ProductImage';
 import { productAPI } from '../services/api';
 import api from '../services/api';
-import { Product, ProductData, User } from '../types/index';
+import { Product, User } from '../types/index';
+import ProductData from '../types/ProductData';
 
 interface FormData {
   price: string;
@@ -274,7 +275,7 @@ const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -289,17 +290,24 @@ const AdminDashboard = () => {
         }
       });
 
+      // Clean string[] parsing with type checks
+      const parseStringArray = (value: unknown): string[] => {
+        if (Array.isArray(value)) return value;
+        if (typeof value === "string") return value.split(',').map(s => s.trim());
+        return [];
+      };
+
       const productData: ProductData = {
-        name: formData.name,
-        brand: formData.brand,
-        category: formData.category,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        image: formData.image,
-        suitable_for: Array.isArray(formData.suitable_for) ? formData.suitable_for : formData.suitable_for.split(',').map(s => s.trim()),
-        targets: Array.isArray(formData.targets) ? formData.targets : formData.targets.split(',').map(s => s.trim()),
-        when_to_apply: Array.isArray(formData.when_to_apply) ? formData.when_to_apply : formData.when_to_apply.split(',').map(s => s.trim())
+        name: String(formData.name),
+        brand: String(formData.brand),
+        category: String(formData.category),
+        description: String(formData.description),
+        price: parseFloat(String(formData.price)),
+        stock: parseInt(String(formData.stock)),
+        image: formData.image as File,
+        suitable_for: parseStringArray(formData.suitable_for),
+        targets: parseStringArray(formData.targets),
+        when_to_apply: parseStringArray(formData.when_to_apply),
       };
 
       if (selectedProduct) {
@@ -319,12 +327,12 @@ const AdminDashboard = () => {
           isClosable: true,
         });
       }
-      
+
       onClose();
       resetForm();
       fetchProducts();
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error("Error saving product:", error);
       toast({
         title: "Error saving product",
         description: error instanceof Error ? error.message : "Please try again",
