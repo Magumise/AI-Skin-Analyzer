@@ -135,7 +135,7 @@ const Auth = () => {
         if (token) {
           const isValid = await authAPI.verifyToken();
           if (isValid) {
-            navigate('/skin-analysis');
+            navigate('/analysis');
           }
         }
       } catch (error) {
@@ -222,7 +222,7 @@ const Auth = () => {
             duration: 5000,
             isClosable: true,
           });
-          navigate('/skin-analysis');
+          navigate('/analysis');
         }
       } else {
         // Validate registration form
@@ -286,7 +286,7 @@ const Auth = () => {
             duration: 3000,
             isClosable: true,
           });
-          navigate('/skin-analysis');
+          navigate('/analysis');
         }
       }
     } catch (error: any) {
