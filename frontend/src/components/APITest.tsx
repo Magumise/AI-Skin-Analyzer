@@ -1,53 +1,57 @@
 import React, { useState } from 'react';
-import { runAPITest } from '../tests/api.test';
+import { Box, Button, Text, VStack, useToast } from '@chakra-ui/react';
+import { testLogin } from '../tests/login.test';
 
-const APITest: React.FC = () => {
-  const [isRunning, setIsRunning] = useState(false);
+const APITest = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
-  const runTest = async () => {
-    setIsRunning(true);
+  const handleTest = async () => {
+    setIsLoading(true);
     setResult(null);
-    setError(null);
-
     try {
-      const success = await runAPITest();
-      setResult(success ? 'All tests passed successfully!' : 'Tests failed');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const success = await testLogin();
+      setResult(success ? 'API test passed!' : 'API test failed');
+      toast({
+        title: success ? 'Success' : 'Error',
+        description: success ? 'API test completed successfully' : 'API test failed',
+        status: success ? 'success' : 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      setResult('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      toast({
+        title: 'Error',
+        description: 'API test failed',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
-      setIsRunning(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">API Connection Test</h2>
-      <button
-        onClick={runTest}
-        disabled={isRunning}
-        className={`px-4 py-2 rounded ${
-          isRunning
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-blue-500 hover:bg-blue-600 text-white'
-        }`}
-      >
-        {isRunning ? 'Running Tests...' : 'Run API Test'}
-      </button>
-
-      {result && (
-        <div className="mt-4 p-3 bg-green-100 text-green-700 rounded">
-          {result}
-        </div>
-      )}
-
-      {error && (
-        <div className="mt-4 p-3 bg-red-100 text-red-700 rounded">
-          Error: {error}
-        </div>
-      )}
-    </div>
+    <Box p={4} borderWidth="1px" borderRadius="lg">
+      <VStack spacing={4}>
+        <Text fontSize="lg" fontWeight="bold">API Test Component</Text>
+        <Button
+          colorScheme="blue"
+          onClick={handleTest}
+          isLoading={isLoading}
+        >
+          Run API Test
+        </Button>
+        {result && (
+          <Text color={result.includes('passed') ? 'green.500' : 'red.500'}>
+            {result}
+          </Text>
+        )}
+      </VStack>
+    </Box>
   );
 };
 
