@@ -5,7 +5,7 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: './',
   server: {
     port: 3000,
     host: true
@@ -20,6 +20,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -27,6 +28,9 @@ export default defineConfig({
           chakra: ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
           icons: ['react-icons/fa', '@chakra-ui/icons'],
         },
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
       },
     },
     chunkSizeWarningLimit: 1000,

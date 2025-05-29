@@ -13,19 +13,19 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/dist/assets/$1"
+      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|gif|webp))",
+      "dest": "/$1"
     },
     {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/index.html"
+      "dest": "/index.html"
     }
   ],
   "env": {
