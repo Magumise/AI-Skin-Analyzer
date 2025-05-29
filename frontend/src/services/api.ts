@@ -210,6 +210,8 @@ export const authAPI = {
     try {
       console.log('Sending registration data:', userData);
       const response = await api.post('/users/register/', userData);
+      console.log('Registration response:', response.data);
+      
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access);
       }
@@ -218,8 +220,18 @@ export const authAPI = {
       }
       return response.data;
     } catch (error: any) {
-      console.error('Registration error:', error);
-      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Registration failed';
+      console.error('Registration error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+      
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          'Registration failed';
       throw new Error(errorMessage);
     }
   },

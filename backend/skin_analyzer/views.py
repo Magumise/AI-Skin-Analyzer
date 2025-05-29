@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
+from django.core.exceptions import ValidationError
 
 class UserRegistrationView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
@@ -24,9 +25,19 @@ class UserRegistrationView(generics.CreateAPIView):
             skin_concerns = request.data.get('skin_concerns', [])
 
             # Validate required fields
-            if not all([email, password, username]):
+            if not email:
                 return Response(
-                    {'error': 'Email, password, and username are required'},
+                    {'error': 'Email is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if not password:
+                return Response(
+                    {'error': 'Password is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if not username:
+                return Response(
+                    {'error': 'Username is required'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -36,44 +47,56 @@ class UserRegistrationView(generics.CreateAPIView):
                     {'error': 'User with this email already exists'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            if User.objects.filter(username=username).exists():
+                return Response(
+                    {'error': 'Username is already taken'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            # Create user
-            user = User.objects.create_user(
-                email=email,
-                username=username,
-                password=password,
-                first_name=first_name,
-                last_name=last_name
-            )
+            try:
+                # Create user
+                user = User.objects.create_user(
+                    email=email,
+                    username=username,
+                    password=password,
+                    first_name=first_name or '',
+                    last_name=last_name or ''
+                )
 
-            # Add additional fields
-            if age:
-                user.age = age
-            if sex:
-                user.sex = sex
-            if country:
-                user.country = country
-            if skin_type:
-                user.skin_type = skin_type
-            if skin_concerns:
-                user.skin_concerns = skin_concerns
+                # Add additional fields
+                if age:
+                    user.age = age
+                if sex:
+                    user.sex = sex
+                if country:
+                    user.country = country
+                if skin_type:
+                    user.skin_type = skin_type
+                if skin_concerns:
+                    user.skin_concerns = skin_concerns
 
-            user.save()
+                user.save()
 
-            # Generate tokens
-            refresh = RefreshToken.for_user(user)
-            
-            return Response({
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-                'user': {
-                    'id': user.id,
-                    'email': user.email,
-                    'username': user.username,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name
-                }
-            }, status=status.HTTP_201_CREATED)
+                # Generate tokens
+                refresh = RefreshToken.for_user(user)
+                
+                return Response({
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user': {
+                        'id': user.id,
+                        'email': user.email,
+                        'username': user.username,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name
+                    }
+                }, status=status.HTTP_201_CREATED)
+
+            except ValidationError as e:
+                return Response(
+                    {'error': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         except Exception as e:
             return Response(
