@@ -183,14 +183,18 @@ export const authAPI = {
       return response.data;
     } catch (error: any) {
       console.error('Registration error:', error);
-      throw new Error(error.response?.data?.detail || error.message || 'Registration failed');
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Registration failed';
+      throw new Error(errorMessage);
     }
   },
 
   // Login user
   login: async (credentials: { username: string; password: string }) => {
     try {
+      console.log('Attempting login with:', { username: credentials.username });
       const response = await api.post('/users/token/', credentials);
+      console.log('Login response:', response.data);
+      
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access);
       }
@@ -200,7 +204,8 @@ export const authAPI = {
       return response.data;
     } catch (error: any) {
       console.error('Login error:', error);
-      throw new Error(error.response?.data?.detail || error.message || 'Login failed');
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Login failed';
+      throw new Error(errorMessage);
     }
   },
 

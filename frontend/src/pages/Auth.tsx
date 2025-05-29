@@ -109,7 +109,6 @@ const Auth = () => {
     }
   });
 
-  const [imagePath, setImagePath] = useState('');
   const [imageError, setImageError] = useState(false);
 
   const skinTypes: (keyof SkinType)[] = ['normal', 'dry', 'oily', 'combination', 'sensitive'];
@@ -125,17 +124,6 @@ const Auth = () => {
     'oiliness',
     'sensitivity'
   ];
-
-  useEffect(() => {
-    // Try to get the correct image path
-    try {
-      const imageUrl = new URL('../new.png', import.meta.url).href;
-      setImagePath(imageUrl);
-      console.log('Image URL:', imageUrl); // For debugging
-    } catch (error) {
-      console.error('Error creating image URL:', error);
-    }
-  }, []);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -587,9 +575,10 @@ const Auth = () => {
                 right={0}
                 bottom={0}
                 left={0}
-                bgImage="url('../new.png')"
+                bgImage="url('/assets/images/new-IM_VMfjJ.png')"
                 bgSize="cover"
                 bgPosition="center"
+                onError={() => setImageError(true)}
               />
               <Box
                 position="absolute"
