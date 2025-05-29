@@ -222,7 +222,11 @@ export const authAPI = {
   // Verify token
   verifyToken: async () => {
     try {
-      const response = await api.post('/users/token/verify/');
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No token available');
+      }
+      const response = await api.post('/users/token/verify/', { token });
       return response.data;
     } catch (error) {
       console.error('Token verification error:', error);
