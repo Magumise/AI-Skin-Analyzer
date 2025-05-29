@@ -8,9 +8,10 @@ export interface ProductData {
   category: string;
   description: string;
   image: string | File;
-  suitable_for: string;
-  targets: string;
-  when_to_apply: string;
+  suitable_for: string[];
+  targets: string[];
+  when_to_apply: string[];
+  [key: string]: string | number | File | string[] | undefined;
 }
 
 // Export as both named and default export for better compatibility

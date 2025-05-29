@@ -93,10 +93,10 @@ interface FormData {
   category: string;
   description: string;
   image: string | File;
-  suitable_for: string;
-  targets: string;
-  when_to_apply: string;
-  [key: string]: string | File;
+  suitable_for: string[];
+  targets: string[];
+  when_to_apply: string[];
+  [key: string]: string | File | string[];
 }
 
 // Initial empty products array with proper typing
@@ -120,9 +120,9 @@ const AdminDashboard = () => {
     price: '',
     image: '',
     stock: '',
-    suitable_for: '',
-    targets: '',
-    when_to_apply: ''
+    suitable_for: [],
+    targets: [],
+    when_to_apply: []
   });
   
   const [users, setUsers] = useState<User[]>([]);
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
       
       // Handle numeric fields
       if (name === 'price' || name === 'stock') {
-        newData[name] = value === '' ? '' : Number(value);
+        newData[name] = value;
       }
       // Handle array fields
       else if (name === 'suitable_for' || name === 'targets' || name === 'when_to_apply') {
@@ -216,35 +216,6 @@ const AdminDashboard = () => {
     }
   };
   
-  const handleUpdateProduct = async (productId: number) => {
-    try {
-      const productData: ProductData = {
-        name: formData.name,
-        brand: formData.brand,
-        category: formData.category,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        image: typeof formData.image === 'string' ? formData.image : '',
-        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
-        targets: formData.targets.split(',').map(s => s.trim()),
-        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
-      };
-      
-      const response = await productAPI.update(productId, productData);
-      
-      // Update image if it's a File object
-      if (formData.image instanceof File) {
-        await handleUpdateProductImage(productId, formData.image);
-      }
-      
-      return response;
-    } catch (error) {
-      console.error('Error updating product:', error);
-      throw error;
-    }
-  };
-  
   const handleUpdateProductImage = async (productId: number, imageFile: File) => {
     try {
       await productAPI.updateProductImage(productId, imageFile);
@@ -270,9 +241,9 @@ const AdminDashboard = () => {
       price: '',
       image: '',
       stock: '',
-      suitable_for: '',
-      targets: '',
-      when_to_apply: ''
+      suitable_for: [],
+      targets: [],
+      when_to_apply: []
     });
     setSelectedProduct(null);
   };
@@ -304,30 +275,45 @@ const AdminDashboard = () => {
     setIsSubmitting(true);
     
     try {
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          if (Array.isArray(value)) {
+            formDataToSend.append(key, JSON.stringify(value));
+          } else if (value instanceof File) {
+            formDataToSend.append(key, value);
+          } else {
+            formDataToSend.append(key, String(value));
+          }
+        }
+      });
+
       if (selectedProduct) {
-        // Update existing product
-        await handleUpdateProduct(selectedProduct.id);
+        await productAPI.update(selectedProduct.id, formDataToSend);
         toast({
-          title: "Product updated successfully",
+          title: "Product updated",
           status: "success",
           duration: 3000,
           isClosable: true,
         });
       } else {
-        // Create new product
-        await handleCreateProduct();
+        await productAPI.create(formDataToSend);
+        toast({
+          title: "Product created",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       }
-
-      // Reset form and refresh products
+      
+      onClose();
       resetForm();
       fetchProducts();
-      onClose();
     } catch (error) {
-      console.error('Error submitting form:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error saving product:', error);
       toast({
         title: "Error saving product",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Please try again",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -408,44 +394,6 @@ const AdminDashboard = () => {
         description: error instanceof Error ? error.message : 'Failed to update user status',
         status: 'error',
         duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const handleCreateProduct = async () => {
-    try {
-      const productData: ProductData = {
-        name: formData.name,
-        brand: formData.brand,
-        category: formData.category,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        image: typeof formData.image === 'string' ? formData.image : '',
-        suitable_for: formData.suitable_for.split(',').map(s => s.trim()),
-        targets: formData.targets.split(',').map(s => s.trim()),
-        when_to_apply: formData.when_to_apply.split(',').map(s => s.trim())
-      };
-
-      const newProduct = await productAPI.create(productData);
-      setProducts(prev => [...prev, newProduct]);
-      toast({
-        title: 'Success',
-        description: 'Product created successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      onClose();
-      resetForm();
-    } catch (error) {
-      console.error('Error creating product:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to create product',
-        status: 'error',
-        duration: 3000,
         isClosable: true,
       });
     }
