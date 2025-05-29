@@ -188,14 +188,9 @@ export const authAPI = {
   },
 
   // Login user
-  login: async (credentials: { email: string; password: string }) => {
+  login: async (credentials: { username: string; password: string }) => {
     try {
-      // Convert email to username for Django JWT authentication
-      const loginData = {
-        username: credentials.email, // Use email as username
-        password: credentials.password
-      };
-      const response = await api.post('/users/token/', loginData);
+      const response = await api.post('/users/token/', credentials);
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access);
       }
@@ -203,7 +198,7 @@ export const authAPI = {
         localStorage.setItem('refresh_token', response.data.refresh);
       }
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       throw error;
     }
@@ -232,12 +227,10 @@ export const authAPI = {
       if (!token) {
         throw new Error('No token available');
       }
-      // Send token in the request body as expected by the backend
       const response = await api.post('/users/token/verify/', { token });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Token verification error:', error);
-      // Only clear tokens if it's an authentication error
       if (error.response?.status === 401 || error.response?.status === 400) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');

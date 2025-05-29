@@ -58,7 +58,7 @@ interface SkinConcerns {
 interface FormData {
   firstName: string;
   lastName: string;
-  email: string;
+  username: string;
   age: string;
   sex: string;
   country: string;
@@ -83,7 +83,7 @@ const Auth = () => {
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
-    email: '',
+    username: '',
     age: '',
     sex: '',
     country: '',
@@ -186,7 +186,23 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      if (!isLogin) {
+      if (isLogin) {
+        // Login
+        const response = await authAPI.login({
+          username: formData.username,
+          password: formData.password
+        });
+        
+        if (response.access) {
+          toast({
+            title: 'Login successful',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+          navigate('/skin-analysis');
+        }
+      } else {
         // Registration validation
         if (formData.password !== formData.confirmPassword) {
           toast({
@@ -212,7 +228,7 @@ const Auth = () => {
 
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
+        if (!emailRegex.test(formData.username)) {
           toast({
             title: 'Invalid email format',
             status: 'error',
@@ -223,7 +239,7 @@ const Auth = () => {
         }
 
         // Validate required fields
-        if (!formData.email || !formData.password || !formData.firstName || !formData.lastName) {
+        if (!formData.username || !formData.password || !formData.firstName || !formData.lastName) {
           toast({
             title: 'Missing required fields',
             description: 'Please fill in all required fields',
@@ -236,11 +252,11 @@ const Auth = () => {
 
         // Format the data for the backend
         const registrationData = {
-          email: formData.email,
+          email: formData.username,
           password: formData.password,
           first_name: formData.firstName,
           last_name: formData.lastName,
-          username: formData.email.split('@')[0], // Generate username from email
+          username: formData.username.split('@')[0], // Generate username from email
           age: formData.age ? parseInt(formData.age) : null,
           sex: formData.sex || null,
           country: formData.country || null,
@@ -266,44 +282,12 @@ const Auth = () => {
         });
 
         navigate('/skin-analysis');
-      } else {
-        // Login
-        const response = await authAPI.login({
-          email: formData.email,
-          password: formData.password
-        });
-
-        console.log('Login successful:', response.data);
-
-        toast({
-          title: 'Login successful!',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-
-        navigate('/skin-analysis');
       }
     } catch (error: any) {
-      console.error(isLogin ? 'Login error:' : 'Registration error:', error);
-      let errorMessage = isLogin ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.';
-      
-      if (error.response?.data) {
-        if (typeof error.response.data === 'object') {
-          const errors = Object.entries(error.response.data)
-            .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
-            .join('\n');
-          errorMessage = errors;
-        } else {
-          errorMessage = error.response.data.detail || error.response.data.message || errorMessage;
-        }
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
+      console.error('Auth error:', error);
       toast({
-        title: isLogin ? 'Login failed' : 'Registration failed',
-        description: errorMessage,
+        title: 'Error',
+        description: error.response?.data?.detail || 'An error occurred',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -406,9 +390,9 @@ const Auth = () => {
                 <FormControl isRequired>
                   <FormLabel fontWeight="medium">Email</FormLabel>
                   <Input
-                    name="email"
+                    name="username"
                     type="email"
-                    value={formData.email}
+                    value={formData.username}
                     onChange={handleInputChange}
                     placeholder="john@example.com"
                     size="lg"
