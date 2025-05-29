@@ -2,8 +2,8 @@ import axios from 'axios';
 import { ProductData } from '../types/ProductData';
 
 // API configuration
-const API_BASE_URL = 'https://ai-skin-analyzer-vmlu.onrender.com';
-const API_URL = `${API_BASE_URL}/api`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
+const API_URL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`;
 
 // Create axios instance with default config
 const api = axios.create({

@@ -5,8 +5,9 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/',
   server: {
-    port: 5173,
+    port: 3000,
     host: true
   },
   resolve: {
@@ -20,9 +21,6 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
@@ -41,7 +39,6 @@ export default defineConfig({
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
   },
-  base: '/',
   // Add TypeScript specific configuration
   typescript: {
     tsconfigPath: './tsconfig.json',
