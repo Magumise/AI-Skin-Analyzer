@@ -8,7 +8,8 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
+const API_BASE_URL = 'https://ai-skin-analyzer-nw9c.onrender.com/api';
+const PROXY_BASE_URL = 'https://ai-skin-analyzer-proxy.onrender.com';
 const API_URL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`;
 
 // Create axios instance with default config
@@ -277,7 +278,7 @@ export const authAPI = {
       console.log('Login URL:', `${API_URL}/users/token/`);
 
       const response = await api.post('/users/token/', {
-        email: credentials.username.trim(),
+        username: credentials.username.trim(),
         password: credentials.password
       });
 
@@ -377,6 +378,32 @@ export const testAIModel = async () => {
     console.error('Error testing AI model endpoint:', error);
     throw error;
   }
+};
+
+export const analysisAPI = {
+  analyzeImage: async (imageFile: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', imageFile);
+
+      const response = await axios.post(
+        `${PROXY_BASE_URL}/predict`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json'
+          },
+          timeout: 120000 // 120 seconds timeout
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Analysis error:', error);
+      throw error;
+    }
+  },
 };
 
 export default api;

@@ -31,40 +31,34 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      // Call the login API
       const response = await authAPI.login({
         username: email,
         password: password
       });
 
-      // Store the tokens
-      if (response.access) {
-        localStorage.setItem('access_token', response.access);
-        if (response.refresh) {
-          localStorage.setItem('refresh_token', response.refresh);
-        }
-        // Set admin token for admin-specific routes
-        localStorage.setItem('adminToken', response.access);
-        
-        toast({
-          title: 'Login successful',
-          description: 'Welcome to the admin dashboard',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-        
-        navigate('/admin/dashboard');
-      } else {
-        throw new Error('Invalid response from server');
+      // Store tokens
+      localStorage.setItem('access_token', response.access);
+      if (response.refresh) {
+        localStorage.setItem('refresh_token', response.refresh);
       }
+      // Set admin token for admin-specific routes
+      localStorage.setItem('adminToken', response.access);
+
+      toast({
+        title: 'Login successful',
+        description: 'Welcome to the admin dashboard',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      navigate('/admin/dashboard');
     } catch (error: any) {
-      console.error('Login error:', error);
       toast({
         title: 'Login failed',
-        description: error.message || 'Please check your credentials and try again',
+        description: error.message || 'Please check your credentials',
         status: 'error',
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
     } finally {
@@ -74,57 +68,56 @@ const AdminLogin = () => {
 
   return (
     <Container maxW="container.sm" py={10}>
-      <VStack spacing={8} as="form" onSubmit={handleSubmit}>
-        <Box textAlign="center">
-          <Heading size="xl" mb={2}>
-            Admin Login
-          </Heading>
-          <Text color="gray.600">
-            Access the admin dashboard to manage products and recommendations
-          </Text>
+      <VStack spacing={8}>
+        <Box w="100%" p={8} borderWidth={1} borderRadius="lg" boxShadow="lg">
+          <VStack spacing={4}>
+            <Heading>Admin Login</Heading>
+            <Text>Please sign in to access the admin dashboard</Text>
+            
+            <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+              <VStack spacing={4}>
+                <FormControl isRequired>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                    />
+                    <InputRightElement>
+                      <IconButton
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        onClick={() => setShowPassword(!showPassword)}
+                        variant="ghost"
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+
+                <Button
+                  type="submit"
+                  colorScheme="blue"
+                  width="100%"
+                  isLoading={isLoading}
+                >
+                  Sign In
+                </Button>
+              </VStack>
+            </form>
+          </VStack>
         </Box>
-
-        <FormControl isRequired>
-          <FormLabel>Email</FormLabel>
-          <Input
-            type="email"
-            placeholder="admin@skincare.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </FormControl>
-
-        <FormControl isRequired>
-          <FormLabel>Password</FormLabel>
-          <InputGroup>
-            <Input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <InputRightElement>
-              <IconButton
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                variant="ghost"
-                onClick={() => setShowPassword(!showPassword)}
-              />
-            </InputRightElement>
-          </InputGroup>
-        </FormControl>
-
-        <Button
-          colorScheme="red"
-          size="lg"
-          w="100%"
-          type="submit"
-          isLoading={isLoading}
-          loadingText="Signing in..."
-          className="button-primary"
-        >
-          Sign In
-        </Button>
       </VStack>
     </Container>
   );
