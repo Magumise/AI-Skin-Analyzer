@@ -59,5 +59,6 @@ export default defineConfig({
   typescript: {
     tsconfigPath: './tsconfig.json',
     include: ['src/**/*.ts', 'src/**/*.tsx'],
+    exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/__tests__/**/*']
   }
 }) 
