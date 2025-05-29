@@ -392,23 +392,62 @@ const Auth = () => {
                   </SimpleGrid>
                 )}
 
-                <FormControl isRequired>
-                  <FormLabel fontWeight="medium">Username</FormLabel>
-                  <Input
-                    name="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    placeholder="Enter your username"
-                    size="lg"
-                    bg="gray.50"
-                    border="2px"
-                    borderColor="gray.200"
-                    _hover={{ borderColor: 'pink.200' }}
-                    _focus={{ borderColor: 'pink.400', boxShadow: '0 0 0 1px pink.400' }}
-                    transition="all 0.2s"
-                  />
-                </FormControl>
+                {isLogin ? (
+                  <FormControl isRequired>
+                    <FormLabel fontWeight="medium">Email</FormLabel>
+                    <Input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter your email"
+                      size="lg"
+                      bg="gray.50"
+                      border="2px"
+                      borderColor="gray.200"
+                      _hover={{ borderColor: 'pink.200' }}
+                      _focus={{ borderColor: 'pink.400', boxShadow: '0 0 0 1px pink.400' }}
+                      transition="all 0.2s"
+                    />
+                  </FormControl>
+                ) : (
+                  <>
+                    <FormControl isRequired>
+                      <FormLabel fontWeight="medium">Username</FormLabel>
+                      <Input
+                        name="username"
+                        type="text"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        placeholder="Enter your username"
+                        size="lg"
+                        bg="gray.50"
+                        border="2px"
+                        borderColor="gray.200"
+                        _hover={{ borderColor: 'pink.200' }}
+                        _focus={{ borderColor: 'pink.400', boxShadow: '0 0 0 1px pink.400' }}
+                        transition="all 0.2s"
+                      />
+                    </FormControl>
+                    <FormControl isRequired>
+                      <FormLabel fontWeight="medium">Email</FormLabel>
+                      <Input
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="Enter your email"
+                        size="lg"
+                        bg="gray.50"
+                        border="2px"
+                        borderColor="gray.200"
+                        _hover={{ borderColor: 'pink.200' }}
+                        _focus={{ borderColor: 'pink.400', boxShadow: '0 0 0 1px pink.400' }}
+                        transition="all 0.2s"
+                      />
+                    </FormControl>
+                  </>
+                )}
 
                 {!isLogin && (
                   <>
