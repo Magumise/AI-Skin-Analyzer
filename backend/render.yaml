@@ -3,8 +3,8 @@ services:
     name: ai-skin-analyzer-backend
     env: python
     buildCommand: |
-      export DJANGO_SETTINGS_MODULE=backend.settings
       pip install -r requirements.txt
+      python -c "import os; os.environ['DJANGO_SETTINGS_MODULE'] = 'backend.settings'"
       python manage.py migrate
       python manage.py collectstatic --noinput
     startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 120
