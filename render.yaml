@@ -3,11 +3,16 @@ services:
     name: ai-skin-analyzer
     env: python
     buildCommand: |
-      pip install -r requirements.txt
+      pip install -r backend/requirements.txt
+      export DJANGO_SETTINGS_MODULE=backend.settings
       python manage.py migrate
       python backend/create_superuser.py
-    startCommand: gunicorn backend.wsgi:application
+    startCommand: |
+      export DJANGO_SETTINGS_MODULE=backend.settings
+      gunicorn backend.wsgi:application
     envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: backend.settings
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
