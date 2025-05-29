@@ -180,12 +180,42 @@ const Auth = () => {
     
     try {
       if (isLogin) {
+        // Validate login form
+        if (!formData.username || !formData.password) {
+          toast({
+            title: 'Error',
+            description: 'Please enter both username and password',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Validate username format
+        if (formData.username.length < 3) {
+          toast({
+            title: 'Error',
+            description: 'Username must be at least 3 characters long',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('Attempting login with:', { username: formData.username });
+
         // Login
         const response = await authAPI.login({
-          username: formData.username,
+          username: formData.username.trim(),
           password: formData.password
         });
         
+        console.log('Login response:', response);
+
         if (response.access) {
           toast({
             title: 'Login successful',
@@ -194,13 +224,52 @@ const Auth = () => {
             isClosable: true,
           });
           navigate('/skin-analysis');
+        } else {
+          throw new Error('No access token received');
         }
       } else {
+        // Validate registration form
+        if (!formData.firstName || !formData.lastName || !formData.username || 
+            !formData.password || !formData.confirmPassword || !formData.age || 
+            !formData.sex || !formData.country) {
+          toast({
+            title: 'Error',
+            description: 'Please fill in all required fields',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
+
+        // Validate username format for registration
+        if (formData.username.length < 3) {
+          toast({
+            title: 'Error',
+            description: 'Username must be at least 3 characters long',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+          toast({
+            title: 'Error',
+            description: 'Passwords do not match',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
+
         // Register
         const response = await authAPI.register({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          username: formData.username,
+          first_name: formData.firstName.trim(),
+          last_name: formData.lastName.trim(),
+          username: formData.username.trim(),
           password: formData.password,
           age: parseInt(formData.age),
           sex: formData.sex,
@@ -226,7 +295,7 @@ const Auth = () => {
     } catch (error: any) {
       console.error('Auth error:', error);
       toast({
-        title: 'Error',
+        title: 'Login Failed',
         description: error.message || 'An error occurred during authentication',
         status: 'error',
         duration: 5000,
@@ -328,13 +397,13 @@ const Auth = () => {
                 )}
 
                 <FormControl isRequired>
-                  <FormLabel fontWeight="medium">Email</FormLabel>
+                  <FormLabel fontWeight="medium">Username</FormLabel>
                   <Input
                     name="username"
-                    type="email"
+                    type="text"
                     value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="john@example.com"
+                    placeholder="Enter your username"
                     size="lg"
                     bg="gray.50"
                     border="2px"

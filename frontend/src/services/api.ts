@@ -24,6 +24,15 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Log request details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Request:', {
+        url: config.url,
+        method: config.method,
+        headers: config.headers,
+        data: config.data
+      });
+    }
     return config;
   },
   (error) => {
@@ -34,7 +43,17 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log response details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Response:', {
+        status: response.status,
+        data: response.data,
+        headers: response.headers
+      });
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -86,7 +105,10 @@ api.interceptors.response.use(
     }
 
     // Handle other errors
-    const errorMessage = error.response.data?.detail || error.response.data?.message || 'An error occurred';
+    const errorMessage = error.response.data?.detail || 
+                        error.response.data?.message || 
+                        error.response.data?.non_field_errors?.[0] ||
+                        'An error occurred';
     return Promise.reject(new Error(errorMessage));
   }
 );
@@ -192,19 +214,45 @@ export const authAPI = {
   login: async (credentials: { username: string; password: string }) => {
     try {
       console.log('Attempting login with:', { username: credentials.username });
-      const response = await api.post('/users/token/', credentials);
+      
+      // Validate credentials
+      if (!credentials.username || !credentials.password) {
+        throw new Error('Username and password are required');
+      }
+
+      // Log the full request URL
+      console.log('Login URL:', `${API_URL}/users/token/`);
+
+      const response = await api.post('/users/token/', {
+        username: credentials.username.trim(),
+        password: credentials.password
+      });
+
       console.log('Login response:', response.data);
       
-      if (response.data.access) {
-        localStorage.setItem('access_token', response.data.access);
+      if (!response.data.access) {
+        console.error('No access token in response:', response.data);
+        throw new Error('Invalid response from server');
       }
+
+      localStorage.setItem('access_token', response.data.access);
       if (response.data.refresh) {
         localStorage.setItem('refresh_token', response.data.refresh);
       }
       return response.data;
     } catch (error: any) {
-      console.error('Login error:', error);
-      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Login failed';
+      console.error('Login error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+      
+      const errorMessage = error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          error.response?.data?.non_field_errors?.[0] ||
+                          error.message || 
+                          'Login failed';
       throw new Error(errorMessage);
     }
   },
