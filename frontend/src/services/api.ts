@@ -233,6 +233,27 @@ export const authAPI = {
         headers: error.response?.headers
       });
       
+      // Handle field-specific errors
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        // If we have field-specific errors, format them
+        if (typeof errorData === 'object') {
+          const fieldErrors = Object.entries(errorData)
+            .map(([field, messages]) => {
+              const message = Array.isArray(messages) ? messages[0] : messages;
+              return `${field.charAt(0).toUpperCase() + field.slice(1)}: ${message}`;
+            })
+            .join('\n');
+          throw new Error(fieldErrors || 'Registration failed');
+        }
+      }
+      
+      // Handle network errors
+      if (!error.response) {
+        throw new Error('Network error. Please check your internet connection and try again.');
+      }
+      
+      // Handle other errors
       const errorMessage = error.response?.data?.error || 
                           error.response?.data?.detail || 
                           error.response?.data?.message || 
