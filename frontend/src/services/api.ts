@@ -1,5 +1,11 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import { ProductData } from '../types/ProductData';
+
+// Extend the AxiosRequestConfig type
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  retry?: number;
+  retryDelay?: number;
+}
 
 // API configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
@@ -13,17 +19,24 @@ const api = axios.create({
     'Accept': 'application/json',
   },
   withCredentials: false,
-  timeout: 30000, // 30 seconds
+  timeout: 60000, // Increased timeout to 60 seconds
+  validateStatus: function (status) {
+    return status >= 200 && status < 500; // Accept all status codes less than 500
+  }
 });
 
 // Request interceptor
 api.interceptors.request.use(
-  (config) => {
+  (config: CustomAxiosRequestConfig) => {
     // Get token from localStorage
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add retry logic for failed requests
+    config.retry = 3;
+    config.retryDelay = 1000;
     
     // Log request details in development
     if (process.env.NODE_ENV === 'development') {
