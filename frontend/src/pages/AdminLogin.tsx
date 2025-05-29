@@ -16,28 +16,59 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { authAPI } from '../services/api';
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, we'll use a simple check. In production, this should be replaced with proper authentication
-    if (email === 'admin@skincare.com' && password === 'admin123') {
-      localStorage.setItem('adminToken', 'dummy-token');
-      navigate('/admin/dashboard');
-    } else {
+    setIsLoading(true);
+
+    try {
+      // Call the login API
+      const response = await authAPI.login({
+        username: email,
+        password: password
+      });
+
+      // Store the tokens
+      if (response.access) {
+        localStorage.setItem('access_token', response.access);
+        if (response.refresh) {
+          localStorage.setItem('refresh_token', response.refresh);
+        }
+        // Set admin token for admin-specific routes
+        localStorage.setItem('adminToken', response.access);
+        
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to the admin dashboard',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        
+        navigate('/admin/dashboard');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
       toast({
-        title: 'Invalid credentials',
-        description: 'Please check your email and password',
+        title: 'Login failed',
+        description: error.message || 'Please check your credentials and try again',
         status: 'error',
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,6 +119,8 @@ const AdminLogin = () => {
           size="lg"
           w="100%"
           type="submit"
+          isLoading={isLoading}
+          loadingText="Signing in..."
           className="button-primary"
         >
           Sign In
