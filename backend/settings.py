@@ -232,7 +232,7 @@ CORS_ALLOW_HEADERS = [
 # Additional CORS settings
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
-CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken', 'Authorization']
 CORS_PREFLIGHT_MAX_AGE = 86400
 
 # Cache settings
