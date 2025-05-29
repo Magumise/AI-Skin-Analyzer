@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,7 +56,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be as high as possible
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -200,33 +201,24 @@ SIMPLE_JWT = {
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "https://frontend-two-mu-37.vercel.app",
-    "https://ai-skin-analyzer-vmlu.onrender.com",
-    "https://frontend-git-main-kelvins-projects-61a51e51.vercel.app",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://localhost:5173",  # For local development
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "access-control-allow-methods",
+    "access-control-allow-origin",
+    "access-control-allow-credentials",
 ]
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
 
 # Additional CORS settings

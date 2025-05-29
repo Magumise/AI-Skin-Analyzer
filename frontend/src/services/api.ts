@@ -18,7 +18,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: false,
+  withCredentials: false,  // Set to false for CORS
   timeout: 60000, // Increased timeout to 60 seconds
   validateStatus: function (status) {
     return status >= 200 && status < 500; // Accept all status codes less than 500
@@ -85,6 +85,12 @@ api.interceptors.response.use(
     if (error.message && error.message.includes('CORS')) {
       console.error('CORS Error:', error);
       return Promise.reject(new Error('Unable to connect to the server. Please try again later.'));
+    }
+
+    // Handle 502 Bad Gateway
+    if (error.response.status === 502) {
+      console.error('Bad Gateway Error:', error);
+      return Promise.reject(new Error('Server is temporarily unavailable. Please try again in a few moments.'));
     }
 
     // Handle 401 Unauthorized errors
