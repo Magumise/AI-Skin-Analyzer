@@ -227,11 +227,24 @@ const Auth = () => {
       } else {
         // Validate registration form
         if (!formData.firstName || !formData.lastName || !formData.username || 
-            !formData.password || !formData.confirmPassword || !formData.age || 
+            !formData.email || !formData.password || !formData.confirmPassword || !formData.age || 
             !formData.sex || !formData.country) {
           toast({
             title: 'Error',
             description: 'Please fill in all required fields',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+          toast({
+            title: 'Error',
+            description: 'Please enter a valid email address',
             status: 'error',
             duration: 5000,
             isClosable: true,
