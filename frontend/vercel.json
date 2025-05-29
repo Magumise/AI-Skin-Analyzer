@@ -30,6 +30,10 @@
       "handle": "filesystem"
     },
     {
+      "src": "/favicon\\.(ico|png|svg)",
+      "dest": "/favicon.$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html",
       "headers": {

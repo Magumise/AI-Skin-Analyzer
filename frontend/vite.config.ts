@@ -24,20 +24,19 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          chakra: ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
-          icons: ['react-icons/fa', '@chakra-ui/icons'],
+          'react-vendor': ['react', 'react-dom'],
+          'router': ['react-router-dom'],
+          'chakra': ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
+          'icons': ['react-icons/fa', '@chakra-ui/icons'],
         },
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
           if (/\.(png|jpe?g|gif|svg|webp)$/.test(assetInfo.name)) {
-            return `assets/images/[name]-[hash][extname]`;
+            return 'assets/images/[name]-[hash][extname]';
           }
           if (/\.css$/.test(assetInfo.name)) {
-            return `assets/css/[name]-[hash][extname]`;
+            return 'assets/css/[name]-[hash][extname]';
           }
-          return `assets/[name]-[hash][extname]`;
+          return 'assets/[name]-[hash][extname]';
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
