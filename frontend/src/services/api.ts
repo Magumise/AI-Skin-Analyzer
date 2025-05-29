@@ -39,6 +39,10 @@ api.interceptors.response.use(
 
     // Handle network errors
     if (!error.response) {
+      if (error.code === 'ECONNABORTED') {
+        console.error('Request timeout:', error);
+        return Promise.reject(new Error('Request timed out. The server is taking too long to respond. Please try again.'));
+      }
       console.error('Network error:', error);
       return Promise.reject(new Error('Network error. Please check your internet connection and try again.'));
     }
@@ -56,6 +60,9 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/auth';
           throw new Error('No refresh token available');
         }
 

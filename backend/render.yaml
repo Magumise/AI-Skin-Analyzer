@@ -3,6 +3,7 @@ services:
     name: ai-skin-analyzer-backend
     env: python
     buildCommand: |
+      export PYTHONPATH=$PYTHONPATH:/opt/render/project/src
       pip install -r requirements.txt
       python manage.py migrate
       python manage.py collectstatic --noinput
