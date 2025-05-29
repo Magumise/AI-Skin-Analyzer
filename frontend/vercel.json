@@ -5,8 +5,8 @@
       "destination": "/index.html"
     }
   ],
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
   "framework": "vite",
   "headers": [
     {
@@ -29,7 +29,7 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://ai-skin-analyzer-nw9c.onrender.com"
+    "VITE_API_URL": "https://ai-skin-analyzer-vmlu.onrender.com/api"
   },
   "public": true
 } 
