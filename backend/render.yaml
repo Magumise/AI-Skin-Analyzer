@@ -4,13 +4,10 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      export PYTHONPATH=$PYTHONPATH:/opt/render/project/src
       python manage.py migrate
       python manage.py collectstatic --noinput
     startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 120
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: backend.settings
       - key: DJANGO_SECRET_KEY
         value: django-insecure-BPnp%5x4_b8j9vkWtHh5utiA-T8Fa-OEE8rrJ6wj5WbK#Kx@kS
       - key: DJANGO_DEBUG
