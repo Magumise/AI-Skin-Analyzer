@@ -190,7 +190,12 @@ export const authAPI = {
   // Login user
   login: async (credentials: { email: string; password: string }) => {
     try {
-      const response = await api.post('/users/token/', credentials);
+      // Convert email to username for Django JWT authentication
+      const loginData = {
+        username: credentials.email, // Use email as username
+        password: credentials.password
+      };
+      const response = await api.post('/users/token/', loginData);
       if (response.data.access) {
         localStorage.setItem('access_token', response.data.access);
       }
