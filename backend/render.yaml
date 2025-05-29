@@ -11,13 +11,15 @@ services:
       - key: DJANGO_SETTINGS_MODULE
         value: backend.settings
       - key: DJANGO_SECRET_KEY
-        generateValue: true
+        value: django-insecure-BPnp%5x4_b8j9vkWtHh5utiA-T8Fa-OEE8rrJ6wj5WbK#Kx@kS
       - key: DJANGO_DEBUG
-        value: false
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ai-skin-analyzer-vmlu.onrender.com,localhost,127.0.0.1
+      - key: CORS_ALLOWED_ORIGINS
+        value: http://localhost:5173,http://127.0.0.1:5173,https://ai-skin-analyzer-vmlu.onrender.com
       - key: DATABASE_URL
-        fromDatabase:
-          name: ai-skin-analyzer-db
-          property: connectionString
+        value: postgres://postgres:Dante@2025@db.ysezicwpvxpyoinljhaf.supabase.co:5432/
     healthCheckPath: /api/users/token/verify/
     autoDeploy: true
     plan: free
