@@ -82,7 +82,8 @@ import { AddIcon, EditIcon, DeleteIcon, ViewIcon } from '@chakra-ui/icons';
 import axios from 'axios';
 import './AdminDashboard.css';
 import ProductImage from '../components/ProductImage';
-import { productAPI, api } from '../services/api';
+import { productAPI } from '../services/api';
+import api from '../services/api';
 import { Product, ProductData, User } from '../types/index';
 
 interface FormData {
@@ -263,9 +264,9 @@ const AdminDashboard = () => {
       price: product.price?.toString() || '',
       image: product.image || '',
       stock: product.stock?.toString() || '',
-      suitable_for: Array.isArray(product.suitable_for) ? product.suitable_for.join(', ') : product.suitable_for || '',
-      targets: Array.isArray(product.targets) ? product.targets.join(', ') : product.targets || '',
-      when_to_apply: Array.isArray(product.when_to_apply) ? product.when_to_apply.join(', ') : product.when_to_apply || ''
+      suitable_for: Array.isArray(product.suitable_for) ? product.suitable_for : [],
+      targets: Array.isArray(product.targets) ? product.targets : [],
+      when_to_apply: Array.isArray(product.when_to_apply) ? product.when_to_apply : []
     });
     onOpen();
   };
@@ -288,8 +289,21 @@ const AdminDashboard = () => {
         }
       });
 
+      const productData: ProductData = {
+        name: formData.name,
+        brand: formData.brand,
+        category: formData.category,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        image: formData.image,
+        suitable_for: Array.isArray(formData.suitable_for) ? formData.suitable_for : formData.suitable_for.split(',').map(s => s.trim()),
+        targets: Array.isArray(formData.targets) ? formData.targets : formData.targets.split(',').map(s => s.trim()),
+        when_to_apply: Array.isArray(formData.when_to_apply) ? formData.when_to_apply : formData.when_to_apply.split(',').map(s => s.trim())
+      };
+
       if (selectedProduct) {
-        await productAPI.update(selectedProduct.id, formDataToSend);
+        await productAPI.update(selectedProduct.id, productData);
         toast({
           title: "Product updated",
           status: "success",
@@ -297,7 +311,7 @@ const AdminDashboard = () => {
           isClosable: true,
         });
       } else {
-        await productAPI.create(formDataToSend);
+        await productAPI.create(productData);
         toast({
           title: "Product created",
           status: "success",
