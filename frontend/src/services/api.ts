@@ -8,7 +8,7 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration
-const API_BASE_URL = 'https://ai-skin-analyzer-nw9c.onrender.com/api';
+const API_BASE_URL = 'https://ai-skin-analyzer-vmlu.onrender.com/api';
 const PROXY_BASE_URL = 'https://ai-skin-analyzer-proxy.onrender.com';
 const API_URL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`;
 

@@ -200,30 +200,34 @@ SIMPLE_JWT = {
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "https://frontend-two-mu-37.vercel.app",
-    "http://localhost:5173",  # For local development
-    "https://ai-skin-analyzer.vercel.app",
-    "https://*.vercel.app"  # Allow all Vercel subdomains
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://frontend-two-mu-37.vercel.app',
+    'https://ai-skin-analyzer.vercel.app',
+    'https://*.vercel.app'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "access-control-allow-methods",
-    "access-control-allow-origin",
-    "access-control-allow-credentials",
-    "authorization",
-    "content-type",
-    "accept"
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 # Additional CORS settings
@@ -274,10 +278,11 @@ SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
 
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = [
-    "https://frontend-two-mu-37.vercel.app",
-    "https://ai-skin-analyzer.vercel.app",
-    "https://*.vercel.app",
-    "https://ai-skin-analyzer-vmlu.onrender.com"
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://frontend-two-mu-37.vercel.app',
+    'https://ai-skin-analyzer.vercel.app',
+    'https://*.vercel.app'
 ]
 
 # Configure WhiteNoise
