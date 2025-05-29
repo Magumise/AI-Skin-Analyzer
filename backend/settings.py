@@ -201,10 +201,8 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://ai-skin-analyzer-vmlu.onrender.com",
     "https://frontend-two-mu-37.vercel.app",
+    "https://ai-skin-analyzer-vmlu.onrender.com",
     "https://frontend-git-main-kelvins-projects-61a51e51.vercel.app"
 ]
 
