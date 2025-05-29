@@ -290,7 +290,7 @@ const SkinAnalysis = () => {
           uploadFormData.append('image', file);
           
           const uploadResponse = await axios.post(
-            'https://ai-skin-analyzer-nw9c.onrender.com/api/images/',
+            'https://ai-skin-analyzer-vmlu.onrender.com/api/images/',
             uploadFormData,
             {
               headers: {
@@ -305,7 +305,7 @@ const SkinAnalysis = () => {
           // Save analysis results
           const imageId = uploadResponse.data.id;
           await axios.post(
-            `https://ai-skin-analyzer-nw9c.onrender.com/api/images/${imageId}/analyze/`,
+            `https://ai-skin-analyzer-vmlu.onrender.com/api/images/${imageId}/analyze/`,
             aiResponse.data,
             {
               headers: {
