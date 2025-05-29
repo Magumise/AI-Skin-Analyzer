@@ -2,7 +2,8 @@ import axios from 'axios';
 import { ProductData } from '../types/ProductData';
 
 // API configuration
-const API_URL = import.meta.env.VITE_API_URL || 'https://ai-skin-analyzer-vmlu.onrender.com/api';
+const API_BASE_URL = 'https://ai-skin-analyzer-vmlu.onrender.com';
+const API_URL = `${API_BASE_URL}/api`;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -226,12 +227,10 @@ export const authAPI = {
       if (!token) {
         throw new Error('No token available');
       }
-      // JWT token verification expects the token in the request body as 'token'
       const response = await api.post('/users/token/verify/', { token });
       return response.data;
     } catch (error) {
       console.error('Token verification error:', error);
-      // If token verification fails, clear the tokens
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       throw error;
