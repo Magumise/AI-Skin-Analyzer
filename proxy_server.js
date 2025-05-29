@@ -7,12 +7,31 @@ const FormData = require('form-data');
 const app = express();
 const upload = multer();
 
-// Enable CORS for all routes
-app.use(cors());
+// Enable CORS for all routes with specific configuration
+app.use(cors({
+  origin: [
+    'https://frontend-two-mu-37.vercel.app',
+    'https://ai-skin-analyzer.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+  credentials: true
+}));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: err.message 
+  });
 });
 
 app.post('/predict', upload.single('file'), async (req, res) => {
@@ -41,10 +60,42 @@ app.post('/predict', upload.single('file'), async (req, res) => {
             }
         );
 
+        // Set CORS headers explicitly for this response
+        res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+
         res.json(response.data);
     } catch (error) {
         console.error('Error:', error.message);
-        res.status(500).json({ error: error.message });
+        
+        // Set CORS headers even for error responses
+        res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            res.status(error.response.status).json({
+                error: 'AI model error',
+                message: error.response.data?.message || error.message
+            });
+        } else if (error.request) {
+            // The request was made but no response was received
+            res.status(504).json({
+                error: 'Gateway timeout',
+                message: 'No response received from AI model'
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            res.status(500).json({
+                error: 'Internal server error',
+                message: error.message
+            });
+        }
     }
 });
 

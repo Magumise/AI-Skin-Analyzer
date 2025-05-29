@@ -274,7 +274,8 @@ const SkinAnalysis = () => {
             'Content-Type': 'multipart/form-data',
             'Accept': 'application/json'
           },
-          timeout: 120000 // 120 seconds timeout
+          timeout: 120000, // 120 seconds timeout
+          withCredentials: true // Enable credentials
         }
       );
       
@@ -334,10 +335,15 @@ const SkinAnalysis = () => {
       let errorMessage = 'An unknown error occurred';
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          errorMessage = `Server error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`;
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const errorData = error.response.data;
+          errorMessage = errorData?.message || errorData?.error || `Server error: ${error.response.status}`;
         } else if (error.request) {
+          // The request was made but no response was received
           errorMessage = 'No response received from AI model. Please check your internet connection.';
         } else {
+          // Something happened in setting up the request that triggered an Error
           errorMessage = `Request error: ${error.message}`;
         }
       } else if (error instanceof Error) {
