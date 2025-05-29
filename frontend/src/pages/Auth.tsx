@@ -58,6 +58,7 @@ interface FormData {
   firstName: string;
   lastName: string;
   username: string;
+  email: string;
   age: string;
   sex: string;
   country: string;
@@ -83,6 +84,7 @@ const Auth = () => {
     firstName: '',
     lastName: '',
     username: '',
+    email: '',
     age: '',
     sex: '',
     country: '',
@@ -181,10 +183,10 @@ const Auth = () => {
     try {
       if (isLogin) {
         // Validate login form
-        if (!formData.username || !formData.password) {
+        if (!formData.email || !formData.password) {
           toast({
             title: 'Error',
-            description: 'Please enter both username and password',
+            description: 'Please enter both email and password',
             status: 'error',
             duration: 5000,
             isClosable: true,
@@ -193,11 +195,12 @@ const Auth = () => {
           return;
         }
 
-        // Validate username format
-        if (formData.username.length < 3) {
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
           toast({
             title: 'Error',
-            description: 'Username must be at least 3 characters long',
+            description: 'Please enter a valid email address',
             status: 'error',
             duration: 5000,
             isClosable: true,
@@ -206,26 +209,20 @@ const Auth = () => {
           return;
         }
 
-        console.log('Attempting login with:', { username: formData.username });
-
-        // Login
         const response = await authAPI.login({
-          username: formData.username.trim(),
+          username: formData.email,
           password: formData.password
         });
-        
-        console.log('Login response:', response);
 
         if (response.access) {
           toast({
-            title: 'Login successful',
+            title: 'Success',
+            description: 'Login successful!',
             status: 'success',
-            duration: 3000,
+            duration: 5000,
             isClosable: true,
           });
           navigate('/skin-analysis');
-        } else {
-          throw new Error('No access token received');
         }
       } else {
         // Validate registration form
@@ -293,10 +290,9 @@ const Auth = () => {
         }
       }
     } catch (error: any) {
-      console.error('Auth error:', error);
       toast({
-        title: 'Login Failed',
-        description: error.message || 'An error occurred during authentication',
+        title: 'Error',
+        description: error.message || 'An error occurred',
         status: 'error',
         duration: 5000,
         isClosable: true,
