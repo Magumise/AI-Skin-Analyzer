@@ -203,7 +203,9 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "https://frontend-two-mu-37.vercel.app",
     "https://ai-skin-analyzer-vmlu.onrender.com",
-    "https://frontend-git-main-kelvins-projects-61a51e51.vercel.app"
+    "https://frontend-git-main-kelvins-projects-61a51e51.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
 ]
 
 CORS_ALLOW_METHODS = [
@@ -225,6 +227,9 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'access-control-allow-origin',
+    'access-control-allow-headers',
+    'access-control-allow-methods'
 ]
 
 # Additional CORS settings
@@ -277,7 +282,9 @@ SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = 'require-corp'
 CSRF_TRUSTED_ORIGINS = [
     "https://frontend-two-mu-37.vercel.app",
     "https://ai-skin-analyzer-vmlu.onrender.com",
-    "https://frontend-git-main-kelvins-projects-61a51e51.vercel.app"
+    "https://frontend-git-main-kelvins-projects-61a51e51.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
 ]
 
 # Configure WhiteNoise
