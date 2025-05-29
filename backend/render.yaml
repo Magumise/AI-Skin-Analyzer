@@ -24,6 +24,6 @@ services:
 
 databases:
   - name: ai-skin-analyzer-db
-    databaseName: postgres
-    user: postgres
+    databaseName: ai_skin_analyzer
+    user: ai_skin_analyzer_user
     plan: free 
