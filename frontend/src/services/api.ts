@@ -181,9 +181,9 @@ export const authAPI = {
         localStorage.setItem('refresh_token', response.data.refresh);
       }
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      throw error;
+      throw new Error(error.response?.data?.detail || error.message || 'Registration failed');
     }
   },
 
@@ -200,7 +200,7 @@ export const authAPI = {
       return response.data;
     } catch (error: any) {
       console.error('Login error:', error);
-      throw error;
+      throw new Error(error.response?.data?.detail || error.message || 'Login failed');
     }
   },
 

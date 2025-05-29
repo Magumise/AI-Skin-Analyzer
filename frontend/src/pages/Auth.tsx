@@ -28,7 +28,6 @@ import {
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon, InfoIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
-import bgImage from '../new.png';  // Make sure this path matches your image location
 import { authAPI } from '../services/api';
 import APITest from '../components/APITest';
 
@@ -142,12 +141,18 @@ const Auth = () => {
     // Check if user is already logged in
     const checkAuth = async () => {
       try {
-        const isValid = await authAPI.verifyToken();
-        if (isValid) {
-          navigate('/skin-analysis');
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          const isValid = await authAPI.verifyToken();
+          if (isValid) {
+            navigate('/skin-analysis');
+          }
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        // Clear invalid tokens
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
       }
     };
     checkAuth();
@@ -203,91 +208,38 @@ const Auth = () => {
           navigate('/skin-analysis');
         }
       } else {
-        // Registration validation
-        if (formData.password !== formData.confirmPassword) {
-          toast({
-            title: 'Passwords do not match',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-          });
-          return;
-        }
-
-        // Validate password strength
-        if (formData.password.length < 8) {
-          toast({
-            title: 'Password too weak',
-            description: 'Password must be at least 8 characters long',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-          });
-          return;
-        }
-
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.username)) {
-          toast({
-            title: 'Invalid email format',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-          });
-          return;
-        }
-
-        // Validate required fields
-        if (!formData.username || !formData.password || !formData.firstName || !formData.lastName) {
-          toast({
-            title: 'Missing required fields',
-            description: 'Please fill in all required fields',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-          });
-          return;
-        }
-
-        // Format the data for the backend
-        const registrationData = {
-          email: formData.username,
-          password: formData.password,
+        // Register
+        const response = await authAPI.register({
           first_name: formData.firstName,
           last_name: formData.lastName,
-          username: formData.username.split('@')[0], // Generate username from email
-          age: formData.age ? parseInt(formData.age) : null,
-          sex: formData.sex || null,
-          country: formData.country || null,
+          username: formData.username,
+          password: formData.password,
+          age: parseInt(formData.age),
+          sex: formData.sex,
+          country: formData.country,
           skin_type: Object.entries(formData.skinType)
             .filter(([_, value]) => value)
             .map(([key]) => key),
           skin_concerns: Object.entries(formData.skinConcerns)
             .filter(([_, value]) => value)
-            .map(([key]) => key)
-        };
-
-        console.log('Sending registration data:', registrationData);
-
-        const response = await authAPI.register(registrationData);
-        console.log('Registration successful:', response.data);
-        
-        toast({
-          title: 'Account created successfully!',
-          description: 'Welcome to AI Skin Analyzer',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
+            .map(([key]) => key),
         });
-
-        navigate('/skin-analysis');
+        
+        if (response.access) {
+          toast({
+            title: 'Registration successful',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+          navigate('/skin-analysis');
+        }
       }
     } catch (error: any) {
       console.error('Auth error:', error);
       toast({
         title: 'Error',
-        description: error.response?.data?.detail || 'An error occurred',
+        description: error.message || 'An error occurred during authentication',
         status: 'error',
         duration: 5000,
         isClosable: true,
