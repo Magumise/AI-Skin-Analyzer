@@ -5,7 +5,9 @@
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build",
+        "installCommand": "npm install"
       }
     }
   ],
@@ -28,5 +30,8 @@
   ],
   "github": {
     "silent": true
+  },
+  "env": {
+    "VITE_API_URL": "https://ai-skin-analyzer-vmlu.onrender.com/api"
   }
 } 

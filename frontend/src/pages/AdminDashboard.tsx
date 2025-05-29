@@ -82,7 +82,7 @@ import { AddIcon, EditIcon, DeleteIcon, ViewIcon } from '@chakra-ui/icons';
 import axios from 'axios';
 import './AdminDashboard.css';
 import ProductImage from '../components/ProductImage';
-import { productAPI } from '../services/api';
+import { productAPI, api } from '../services/api';
 import { Product, ProductData, User } from '../types/index';
 
 interface FormData {
@@ -158,12 +158,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
     try {
-      const response = await axios.get('http://localhost:8000/api/users/', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await api.get('/users/');
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -368,12 +363,7 @@ const AdminDashboard = () => {
 
   const handleDeleteUser = async (userId: number) => {
     try {
-      await axios.delete(`http://localhost:8000/api/users/${userId}/`, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
+      await api.delete(`/users/${userId}/`);
       
       setUsers(users.filter(user => user.id !== userId));
       toast({
@@ -397,13 +387,8 @@ const AdminDashboard = () => {
 
   const handleToggleUserStatus = async (userId: number, isActive: boolean) => {
     try {
-      await axios.patch(`http://localhost:8000/api/users/${userId}/`, {
+      await api.patch(`/users/${userId}/`, {
         is_active: !isActive
-      }, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
       });
       
       setUsers(users.map(user => 
