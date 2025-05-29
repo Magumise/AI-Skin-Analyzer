@@ -218,11 +218,11 @@ export const authAPI = {
       const response = await api.post('/users/register/', userData);
       console.log('Registration response:', response.data);
       
-      if (response.data.access) {
-        localStorage.setItem('access_token', response.data.access);
+      if (response.data.tokens?.access) {
+        localStorage.setItem('access_token', response.data.tokens.access);
       }
-      if (response.data.refresh) {
-        localStorage.setItem('refresh_token', response.data.refresh);
+      if (response.data.tokens?.refresh) {
+        localStorage.setItem('refresh_token', response.data.tokens.refresh);
       }
       return response.data;
     } catch (error: any) {

@@ -293,9 +293,14 @@ const Auth = () => {
             .map(([key]) => key),
         });
         
-        if (response.access) {
+        if (response.tokens?.access) {
+          localStorage.setItem('access_token', response.tokens.access);
+          if (response.tokens.refresh) {
+            localStorage.setItem('refresh_token', response.tokens.refresh);
+          }
           toast({
             title: 'Registration successful',
+            description: 'Welcome to AI Skin Analyzer!',
             status: 'success',
             duration: 3000,
             isClosable: true,
