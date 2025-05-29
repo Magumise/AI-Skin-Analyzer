@@ -261,17 +261,18 @@ const SkinAnalysis = () => {
     setError(null);
     
     try {
-      // First, analyze with AI model directly
+      // Use the proxy server for AI analysis
       const formData = new FormData();
       formData.append('file', file);
       
       console.log('Sending image to AI model...');
       const aiResponse = await axios.post(
-        'https://us-central1-aurora-457407.cloudfunctions.net/predict',
+        'https://ai-skin-analyzer-proxy.onrender.com/predict',
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json'
           },
           timeout: 120000 // 120 seconds timeout
         }
