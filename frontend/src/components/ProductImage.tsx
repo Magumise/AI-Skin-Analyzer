@@ -14,7 +14,7 @@ import {
 import { FaUpload, FaImage } from 'react-icons/fa';
 
 interface ProductImageProps {
-  imageUrl?: string;
+  imageUrl: string | File;
   onImageChange?: (file: File) => void;
   onError?: () => void;
   isEditable?: boolean;
@@ -28,17 +28,20 @@ const ProductImage: React.FC<ProductImageProps> = ({
   isEditable = false,
   size = 'md',
 }) => {
-  const [preview, setPreview] = useState<string | undefined>(imageUrl);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('gray.50', 'gray.700');
 
-  // Update preview when imageUrl changes
   useEffect(() => {
-    setPreview(imageUrl);
-    setIsLoading(true);
-    setHasError(false);
+    if (typeof imageUrl === 'string') {
+      setPreviewUrl(imageUrl);
+    } else if (imageUrl instanceof File) {
+      const url = URL.createObjectURL(imageUrl);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
   }, [imageUrl]);
 
   const sizeMap = {
@@ -51,32 +54,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onImageChange) {
-      // Reset states
-      setIsLoading(true);
-      setHasError(false);
-      
-      // Check file size (limit to 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setHasError(true);
-        setIsLoading(false);
-        if (onError) onError();
-        return;
-      }
-      
-      // Check file type
-      if (!file.type.match('image.*')) {
-        setHasError(true);
-        setIsLoading(false);
-        if (onError) onError();
-        return;
-      }
-      
       onImageChange(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -95,15 +73,15 @@ const ProductImage: React.FC<ProductImageProps> = ({
 
   // Generate a fallback image URL if the placeholder service is not available
   const getFallbackImageUrl = () => {
-    if (!preview) return '';
+    if (!previewUrl) return '';
     
     // If it's a data URL, return it directly
-    if (preview.startsWith('data:')) return preview;
+    if (previewUrl.startsWith('data:')) return previewUrl;
     
     // If it's a placeholder URL that's failing, create a local fallback
-    if (preview.includes('via.placeholder.com')) {
+    if (previewUrl.includes('via.placeholder.com')) {
       // Extract the text from the placeholder URL
-      const textMatch = preview.match(/text=([^&]+)/);
+      const textMatch = previewUrl.match(/text=([^&]+)/);
       const text = textMatch ? decodeURIComponent(textMatch[1]) : 'Product';
       
       // Create a data URL with a simple colored background and text
@@ -128,7 +106,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
       }
     }
     
-    return preview;
+    return previewUrl;
   };
 
   return (
@@ -146,7 +124,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
         onClick={() => isEditable && document.getElementById('product-image-upload')?.click()}
         _hover={isEditable ? { borderColor: 'red.500' } : undefined}
       >
-        {preview && !hasError ? (
+        {previewUrl ? (
           <>
             <Image
               src={getFallbackImageUrl()}

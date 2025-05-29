@@ -46,6 +46,10 @@ export interface User {
   last_name: string;
   age?: number;
   last_skin_condition?: string;
+  skin_type?: string[];
+  skin_concerns?: string[];
+  country?: string;
+  sex?: string;
 }
 
 export interface AuthResponse {
