@@ -308,7 +308,6 @@ export const authAPI = {
     try {
       console.log('Attempting login with:', { email: credentials.email });
       
-      // For all users, proceed with normal authentication
       const response = await api.post('/users/token/', {
         email: credentials.email,
         password: credentials.password
@@ -330,6 +329,8 @@ export const authAPI = {
       // Set admin flag if user is staff or superuser
       if (response.data.user?.is_staff || response.data.user?.is_superuser) {
         localStorage.setItem('is_admin', 'true');
+      } else {
+        localStorage.removeItem('is_admin');
       }
 
       // Return the full response data

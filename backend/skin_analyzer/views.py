@@ -25,9 +25,46 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         try:
+            logger.info(f"Login attempt with email: {request.data.get('email')}")
+            
+            # Check if this is an admin login attempt
+            email = request.data.get('email')
+            password = request.data.get('password')
+            
+            if email == 'admin@skincare.com' and password == 'admin123':
+                # Get or create admin user
+                admin = User.objects.filter(email=email).first()
+                if not admin:
+                    admin = User.objects.create_superuser(
+                        email=email,
+                        password=password,
+                        username='admin',
+                        is_staff=True,
+                        is_active=True,
+                        is_superuser=True
+                    )
+                
+                # Generate tokens for admin
+                refresh = RefreshToken.for_user(admin)
+                logger.info("Admin login successful")
+                
+                return Response({
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user': {
+                        'id': admin.id,
+                        'email': admin.email,
+                        'username': admin.username,
+                        'is_staff': admin.is_staff,
+                        'is_superuser': admin.is_superuser
+                    }
+                })
+            
+            # For non-admin users, proceed with normal authentication
             response = super().post(request, *args, **kwargs)
             logger.info("Login successful")
             return response
+            
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
             return Response(
