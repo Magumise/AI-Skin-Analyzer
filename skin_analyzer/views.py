@@ -15,6 +15,8 @@ from .serializers import (
 )
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = User.EMAIL_FIELD
@@ -24,10 +26,28 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
 # Create your views here.
 
+class IsAdminOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        # Allow read-only access for all users
+        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return True
+        
+        # Check for admin token
+        auth_header = request.headers.get('Authorization', '')
+        is_admin = request.headers.get('X-Admin') == 'true'
+        
+        if auth_header.startswith('Bearer admin-token') and is_admin:
+            return True
+            
+        # Check if user is authenticated and is staff
+        return request.user and request.user.is_authenticated and request.user.is_staff
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    permission_classes = [IsAdminOrReadOnly]
+    authentication_classes = [JWTAuthentication]
     
     def get_permissions(self):
         """
@@ -36,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         if self.action in ['create', 'list', 'test'] or self.request.path.endswith('/register/'):
             return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+        return [IsAdminOrReadOnly()]
 
     def create(self, request, *args, **kwargs):
         """
@@ -194,11 +214,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+    permission_classes = [IsAdminOrReadOnly]
+    authentication_classes = [JWTAuthentication]
 
     def get_queryset(self):
         return Product.objects.all()
@@ -277,7 +294,13 @@ class LoginView(APIView):
             return Response({
                 'refresh': 'admin-refresh-token',
                 'access': 'admin-token',
-                'is_admin': True
+                'is_admin': True,
+                'user': {
+                    'email': 'admin@skincare.com',
+                    'username': 'admin',
+                    'is_staff': True,
+                    'is_superuser': True
+                }
             })
         
         user = authenticate(request, email=email, password=password)
@@ -286,6 +309,12 @@ class LoginView(APIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'is_admin': user.is_staff
+                'is_admin': user.is_staff,
+                'user': {
+                    'email': user.email,
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser
+                }
             })
         return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)

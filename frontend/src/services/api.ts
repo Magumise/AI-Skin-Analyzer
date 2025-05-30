@@ -36,6 +36,8 @@ api.interceptors.request.use(
     // For admin, use the admin token
     if (isAdmin) {
       config.headers.Authorization = 'Bearer admin-token';
+      // Add admin flag to headers
+      config.headers['X-Admin'] = 'true';
     } else if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -78,9 +80,11 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const isAdmin = localStorage.getItem('is_admin') === 'true';
 
-    // For admin, skip error handling
+    // For admin, skip error handling and retry with admin token
     if (isAdmin) {
-      return Promise.resolve({ data: { valid: true } });
+      originalRequest.headers.Authorization = 'Bearer admin-token';
+      originalRequest.headers['X-Admin'] = 'true';
+      return api(originalRequest);
     }
 
     // Handle network errors
