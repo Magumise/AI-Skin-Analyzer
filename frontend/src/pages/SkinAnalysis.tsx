@@ -261,21 +261,19 @@ const SkinAnalysis = () => {
     setError(null);
     
     try {
-      // Use the proxy server for AI analysis
+      // First, analyze with AI model directly
       const formData = new FormData();
       formData.append('file', file);
       
       console.log('Sending image to AI model...');
       const aiResponse = await axios.post(
-        'https://ai-skin-analyzer-proxy.onrender.com/predict',
+        'https://us-central1-aurora-457407.cloudfunctions.net/predict',
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json'
           },
-          timeout: 120000, // 120 seconds timeout
-          withCredentials: true // Enable credentials
+          timeout: 120000 // 120 seconds timeout
         }
       );
       
@@ -289,17 +287,14 @@ const SkinAnalysis = () => {
           const uploadFormData = new FormData();
           uploadFormData.append('image', file);
           
-          console.log('Uploading image to backend with token:', token.substring(0, 10) + '...');
           const uploadResponse = await axios.post(
-            'https://ai-skin-analyzer-vmlu.onrender.com/api/images/',
+            `${API_URL}/api/images/`,
             uploadFormData,
             {
               headers: {
                 'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
+                'Authorization': `Bearer ${token}`
               },
-              withCredentials: true
             }
           );
           
@@ -308,78 +303,20 @@ const SkinAnalysis = () => {
           // Save analysis results
           const imageId = uploadResponse.data.id;
           await axios.post(
-            `https://ai-skin-analyzer-vmlu.onrender.com/api/images/${imageId}/analyze/`,
+            `${API_URL}/api/images/${imageId}/analyze/`,
             aiResponse.data,
             {
               headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              withCredentials: true
+                'Authorization': `Bearer ${token}`
+              }
             }
           );
           
           console.log('Analysis results saved to backend');
         } catch (error) {
           console.error('Error saving to backend:', error);
-          if (axios.isAxiosError(error) && error.response?.status === 401) {
-            // Token might be expired, try to refresh it
-            try {
-              const refreshToken = localStorage.getItem('refresh_token');
-              if (refreshToken) {
-                const refreshResponse = await axios.post(
-                  'https://ai-skin-analyzer-vmlu.onrender.com/api/users/token/refresh/',
-                  { refresh: refreshToken }
-                );
-                
-                if (refreshResponse.data.access) {
-                  localStorage.setItem('access_token', refreshResponse.data.access);
-                  // Retry the upload with new token
-                  const newToken = refreshResponse.data.access;
-                  const uploadFormData = new FormData();
-                  uploadFormData.append('image', file);
-                  
-                  const uploadResponse = await axios.post(
-                    'https://ai-skin-analyzer-vmlu.onrender.com/api/images/',
-                    uploadFormData,
-                    {
-                      headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${newToken}`,
-                        'Accept': 'application/json'
-                      },
-                      withCredentials: true
-                    }
-                  );
-                  
-                  const imageId = uploadResponse.data.id;
-                  await axios.post(
-                    `https://ai-skin-analyzer-vmlu.onrender.com/api/images/${imageId}/analyze/`,
-                    aiResponse.data,
-                    {
-                      headers: {
-                        'Authorization': `Bearer ${newToken}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                      },
-                      withCredentials: true
-                    }
-                  );
-                  
-                  console.log('Successfully saved after token refresh');
-                }
-              }
-            } catch (refreshError) {
-              console.error('Token refresh failed:', refreshError);
-              // If refresh fails, redirect to login
-              navigate('/auth');
-            }
-          }
           // Continue even if backend save fails
         }
-      } else {
-        console.log('No token found, skipping backend save');
       }
       
       // Navigate to results page with the data
@@ -396,15 +333,10 @@ const SkinAnalysis = () => {
       let errorMessage = 'An unknown error occurred';
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          const errorData = error.response.data;
-          errorMessage = errorData?.message || errorData?.error || `Server error: ${error.response.status}`;
+          errorMessage = `Server error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`;
         } else if (error.request) {
-          // The request was made but no response was received
           errorMessage = 'No response received from AI model. Please check your internet connection.';
         } else {
-          // Something happened in setting up the request that triggered an Error
           errorMessage = `Request error: ${error.message}`;
         }
       } else if (error instanceof Error) {
