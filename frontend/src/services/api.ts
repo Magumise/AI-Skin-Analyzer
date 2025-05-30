@@ -45,8 +45,13 @@ api.interceptors.request.use(
     );
     
     if (shouldSkipAuth) {
-      // Remove Authorization header for these endpoints
-      delete config.headers.Authorization;
+      // For these endpoints, just set the admin token if user is admin
+      if (isAdmin) {
+        config.headers.Authorization = 'Bearer admin-token';
+      } else {
+        // Remove Authorization header for non-admin users
+        delete config.headers.Authorization;
+      }
       // Also remove any other auth-related headers
       delete config.headers['X-CSRFToken'];
       delete config.headers['X-Requested-With'];
@@ -55,7 +60,7 @@ api.interceptors.request.use(
       config.headers['Accept'] = 'application/json';
     } else if (isAdmin) {
       // For admin, use the dummy token
-      config.headers.Authorization = `Bearer admin-token`;
+      config.headers.Authorization = 'Bearer admin-token';
     } else if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

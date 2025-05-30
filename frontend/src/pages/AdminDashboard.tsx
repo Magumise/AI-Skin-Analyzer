@@ -433,7 +433,8 @@ const AdminDashboard = () => {
       const response = await api.post('/products/add-all/', {}, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Authorization': 'Bearer admin-token'
         }
       });
       console.log('Add all products response:', response.data);
