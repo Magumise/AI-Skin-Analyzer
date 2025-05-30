@@ -33,6 +33,11 @@ api.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     const isAdmin = localStorage.getItem('is_admin') === 'true';
     
+    // For product endpoints, don't require authentication
+    if (config.url?.startsWith('/products/')) {
+      return config;
+    }
+    
     // For admin, use the admin token
     if (isAdmin && token) {
       config.headers.Authorization = `Bearer ${token}`;
