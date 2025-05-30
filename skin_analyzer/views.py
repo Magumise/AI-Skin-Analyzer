@@ -163,9 +163,8 @@ class UploadedImageViewSet(viewsets.ModelViewSet):
                     # Filter products based on the condition
                     filtered_products = []
                     for product in products:
-                        # Check if the product's targets or suitable_for contains the condition
-                        if (condition in product.targets.lower() or 
-                            condition in product.suitable_for.lower()):
+                        # Check if the product's category contains the condition
+                        if condition in product.category.lower():
                             filtered_products.append(product)
                     
                     # Serialize the filtered products

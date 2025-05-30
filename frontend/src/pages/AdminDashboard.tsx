@@ -426,40 +426,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleAddAllProducts = async () => {
-    setIsSubmitting(true);
-    try {
-      // Call the backend endpoint to add all products
-      const response = await api.post('/products/add-all/', {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer admin-token'
-        }
-      });
-      console.log('Add all products response:', response.data);
-      toast({
-        title: "Default products added",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-      // Refresh the product list after adding
-      fetchProducts();
-    } catch (error) {
-      console.error('Error adding all products:', error);
-      toast({
-        title: "Error adding default products",
-        description: error instanceof Error ? error.message : "Please try again",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <Box className="app-container">
       {/* Header */}
@@ -522,17 +488,10 @@ const AdminDashboard = () => {
                         <Heading size="md">Products</Heading>
                         <HStack spacing={2}>
                           <Button 
-                            colorScheme="green" 
-                            leftIcon={<Icon as={FaSync} />}
-                            onClick={handleAddAllProducts}
-                            isLoading={isSubmitting}
-                          >
-                            Add All Default Products
-                          </Button>
-                          <Button 
                             colorScheme="red" 
                             leftIcon={<Icon as={FaPlus} />}
                             onClick={openAddProductModal}
+                            isLoading={isSubmitting}
                           >
                             Add Product
                           </Button>
