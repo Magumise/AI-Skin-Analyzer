@@ -15,4 +15,5 @@ urlpatterns = [
     path('users/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('users/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('users/register/', UserRegistrationView.as_view(), name='user_register'),
+    path('create-admin/', views.create_admin_user, name='create_admin_user'),
 ] 

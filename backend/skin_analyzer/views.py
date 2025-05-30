@@ -11,6 +11,7 @@ from django.core.validators import validate_email
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError as DjangoValidationError
 import logging
+from rest_framework.decorators import api_view, permission_classes
 
 logger = logging.getLogger(__name__)
 
@@ -151,4 +152,41 @@ class UserRegistrationView(generics.CreateAPIView):
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
-            ) 
+            )
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_admin_user(request):
+    User = get_user_model()
+    
+    # Admin credentials
+    email = 'admin@skincare.com'
+    password = 'admin123'
+    
+    try:
+        # Check if admin user exists
+        admin = User.objects.filter(email=email).first()
+        
+        if admin:
+            # Update permissions if needed
+            if not admin.is_staff or not admin.is_superuser:
+                admin.is_staff = True
+                admin.is_superuser = True
+                admin.is_active = True
+                admin.save()
+                return Response({'message': 'Admin permissions updated'})
+            return Response({'message': 'Admin user already exists'})
+        else:
+            # Create new admin user
+            admin = User.objects.create_superuser(
+                email=email,
+                password=password,
+                username='admin',
+                is_staff=True,
+                is_active=True,
+                is_superuser=True
+            )
+            return Response({'message': 'Admin user created successfully'})
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=400) 
