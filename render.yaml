@@ -28,6 +28,25 @@ services:
       minInstances: 1
       maxInstances: 1
 
+  - type: web
+    name: ai-skin-analyzer-proxy
+    env: node
+    buildCommand: |
+      cd proxy
+      npm install
+    startCommand: |
+      cd proxy
+      npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+    plan: free
+    autoDeploy: true
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+
 databases:
   - name: ai-skin-analyzer-db
     databaseName: ai_skin_analyzer
