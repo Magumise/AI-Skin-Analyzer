@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import User
+from .serializers import CustomTokenObtainPairSerializer
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.core.validators import EmailValidator
@@ -14,72 +15,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = (AllowAny,)
+
     def post(self, request, *args, **kwargs):
         try:
-            # Get email and password from request
-            email = request.data.get('email', '').strip()  # Changed from username to email
-            password = request.data.get('password')
-            
-            logger.info(f"Login attempt for email: {email}")
-
-            # Validate email format
-            try:
-                validate_email(email)
-                logger.info("Email validation passed")
-            except DjangoValidationError:
-                logger.error("Invalid email format")
-                return Response(
-                    {'email': ['Please enter a valid email address.']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Try to get user by email
-            try:
-                user = User.objects.get(email=email)
-                logger.info(f"User found: {user.email}, is_staff: {user.is_staff}, is_superuser: {user.is_superuser}")
-            except User.DoesNotExist:
-                logger.error(f"No user found with email: {email}")
-                return Response(
-                    {'email': ['No user found with this email address.']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Check password
-            if not user.check_password(password):
-                logger.error("Invalid password")
-                return Response(
-                    {'password': ['Invalid password.']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Check if user is staff or superuser
-            if not (user.is_staff or user.is_superuser):
-                logger.error("User is not staff or superuser")
-                return Response(
-                    {'error': ['You do not have permission to access the admin dashboard.']},
-                    status=status.HTTP_403_FORBIDDEN
-                )
-
-            # Generate tokens
-            refresh = RefreshToken.for_user(user)
-            logger.info("Login successful, tokens generated")
-            
-            # Add custom claims to the token
-            refresh['email'] = user.email
-            refresh['is_staff'] = user.is_staff
-            refresh['is_superuser'] = user.is_superuser
-            
-            return Response({
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-                'user': {
-                    'id': user.id,
-                    'email': user.email,
-                    'username': user.username,
-                    'is_staff': user.is_staff,
-                    'is_superuser': user.is_superuser
-                }
-            })
+            response = super().post(request, *args, **kwargs)
+            logger.info("Login successful")
+            return response
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
             return Response(
