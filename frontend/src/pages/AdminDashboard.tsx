@@ -192,7 +192,8 @@ const AdminDashboard = () => {
       }
       // Handle array fields
       else if (name === 'suitable_for' || name === 'targets' || name === 'when_to_apply') {
-        newData[name] = value.split(',').map(item => item.trim());
+        // Split by comma and trim each value
+        newData[name] = value.split(',').map(item => item.trim()).filter(item => item !== '');
       }
       // Handle all other fields
       else {
@@ -425,6 +426,34 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleAddAllProducts = async () => {
+    setIsSubmitting(true);
+    try {
+      // Call the new backend endpoint to add all products
+      const response = await api.post('/products/add-all/');
+      console.log('Add all products response:', response.data);
+      toast({
+        title: "Default products added",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      // Refresh the product list after adding
+      fetchProducts();
+    } catch (error) {
+      console.error('Error adding all products:', error);
+      toast({
+        title: "Error adding default products",
+        description: error instanceof Error ? error.message : "Please try again",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Box className="app-container">
       {/* Header */}
@@ -485,13 +514,23 @@ const AdminDashboard = () => {
                     <CardHeader bg="red.50">
                       <Flex justify="space-between" align="center">
                         <Heading size="md">Products</Heading>
-                        <Button 
-                          colorScheme="red" 
-                          leftIcon={<Icon as={FaPlus} />}
-                          onClick={openAddProductModal}
-                        >
-                          Add Product
-                        </Button>
+                        <HStack spacing={2}>
+                          <Button 
+                            colorScheme="green" 
+                            leftIcon={<Icon as={FaSync} />}
+                            onClick={handleAddAllProducts}
+                            isLoading={isSubmitting}
+                          >
+                            Add All Default Products
+                          </Button>
+                          <Button 
+                            colorScheme="red" 
+                            leftIcon={<Icon as={FaPlus} />}
+                            onClick={openAddProductModal}
+                          >
+                            Add Product
+                          </Button>
+                        </HStack>
                       </Flex>
                     </CardHeader>
                     <CardBody>
@@ -795,9 +834,9 @@ const AdminDashboard = () => {
                 <FormLabel>Suitable For</FormLabel>
                 <Textarea 
                   name="suitable_for" 
-                  value={formData.suitable_for} 
+                  value={Array.isArray(formData.suitable_for) ? formData.suitable_for.join(', ') : formData.suitable_for} 
                   onChange={handleInputChange} 
-                  placeholder="Enter skin types this product is suitable for" 
+                  placeholder="Enter skin types this product is suitable for (comma-separated)" 
                 />
               </FormControl>
               
@@ -805,9 +844,9 @@ const AdminDashboard = () => {
                 <FormLabel>Targets</FormLabel>
                 <Textarea 
                   name="targets" 
-                  value={formData.targets} 
+                  value={Array.isArray(formData.targets) ? formData.targets.join(', ') : formData.targets} 
                   onChange={handleInputChange} 
-                  placeholder="Enter skin concerns this product targets" 
+                  placeholder="Enter skin concerns this product targets (comma-separated)" 
                 />
               </FormControl>
               
@@ -815,9 +854,9 @@ const AdminDashboard = () => {
                 <FormLabel>When to Apply</FormLabel>
                 <Input 
                   name="when_to_apply" 
-                  value={formData.when_to_apply} 
+                  value={Array.isArray(formData.when_to_apply) ? formData.when_to_apply.join(', ') : formData.when_to_apply} 
                   onChange={handleInputChange} 
-                  placeholder="e.g., AM, PM, AM/PM" 
+                  placeholder="e.g., AM, PM, AM/PM (comma-separated)" 
                 />
               </FormControl>
             </VStack>
