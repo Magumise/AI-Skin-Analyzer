@@ -4,7 +4,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
-from .views import UserRegistrationView, CustomTokenObtainPairView, create_admin_user
+from .views import (
+    UserRegistrationView,
+    CustomTokenObtainPairView,
+    create_admin_user
+)
 
 urlpatterns = [
     # Test route to verify URL routing
