@@ -34,8 +34,8 @@ api.interceptors.request.use(
     const isAdmin = localStorage.getItem('is_admin') === 'true';
     
     // For admin, use the admin token
-    if (isAdmin) {
-      config.headers.Authorization = 'Bearer admin-token';
+    if (isAdmin && token) {
+      config.headers.Authorization = `Bearer ${token}`;
       // Add admin flag to headers
       config.headers['X-Admin'] = 'true';
     } else if (token) {
@@ -280,32 +280,13 @@ export const authAPI = {
   },
 
   // Login user
-  login: async (credentials: { username: string; password: string }) => {
+  login: async (credentials: { email: string; password: string }) => {
     try {
-      console.log('Attempting login with:', { email: credentials.username });
+      console.log('Attempting login with:', { email: credentials.email });
       
-      // Special case for admin login
-      if (credentials.username === 'admin@skincare.com' && credentials.password === 'admin123') {
-        // For admin, just store a dummy token and return success
-        localStorage.setItem('access_token', 'admin-token');
-        localStorage.setItem('refresh_token', 'admin-refresh-token');
-        localStorage.setItem('is_admin', 'true');
-        
-        return {
-          access: 'admin-token',
-          refresh: 'admin-refresh-token',
-          user: {
-            email: 'admin@skincare.com',
-            username: 'admin',
-            is_staff: true,
-            is_superuser: true
-          }
-        };
-      }
-
-      // For all other users, proceed with normal authentication
+      // For all users, proceed with normal authentication
       const response = await api.post('/users/token/', {
-        email: credentials.username,
+        email: credentials.email,
         password: credentials.password
       });
 
@@ -320,6 +301,11 @@ export const authAPI = {
       localStorage.setItem('access_token', response.data.access);
       if (response.data.refresh) {
         localStorage.setItem('refresh_token', response.data.refresh);
+      }
+
+      // Set admin flag if user is staff or superuser
+      if (response.data.user?.is_staff || response.data.user?.is_superuser) {
+        localStorage.setItem('is_admin', 'true');
       }
 
       // Return the full response data
@@ -339,8 +325,6 @@ export const authAPI = {
         throw new Error(error.response.data.non_field_errors[0]);
       } else if (error.response?.data?.email) {
         throw new Error(error.response.data.email[0]);
-      } else if (error.response?.data?.username) {
-        throw new Error(error.response.data.username[0]);
       }
       
       throw new Error(error.message || 'Login failed');

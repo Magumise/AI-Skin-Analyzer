@@ -33,34 +33,9 @@ const AdminLogin = () => {
     try {
       console.log('Attempting login with:', { email });
       
-      // Special case for admin login
-      if (email === 'admin@skincare.com' && password === 'admin123') {
-        // Store admin flag and dummy tokens
-        localStorage.setItem('is_admin', 'true');
-        localStorage.setItem('access_token', 'admin-token');
-        localStorage.setItem('refresh_token', 'admin-refresh-token');
-        localStorage.setItem('user', JSON.stringify({
-          email: 'admin@skincare.com',
-          username: 'admin',
-          is_staff: true,
-          is_superuser: true
-        }));
-
-        toast({
-          title: 'Login successful',
-          description: 'Welcome to the admin dashboard',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-
-        navigate('/admin/dashboard');
-        return;
-      }
-
-      // For non-admin users, proceed with normal authentication
+      // Use the auth API for admin login
       const response = await authAPI.login({
-        username: email,
+        email: email,
         password: password
       });
 
@@ -76,9 +51,9 @@ const AdminLogin = () => {
         // Store user info
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
-          // Set admin token for admin-specific routes
+          // Set admin flag if user is staff or superuser
           if (response.user.is_staff || response.user.is_superuser) {
-            localStorage.setItem('adminToken', response.access);
+            localStorage.setItem('is_admin', 'true');
           }
         }
 
