@@ -12,6 +12,9 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError as DjangoValidationError
 import logging
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import viewsets
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework import permissions
 
 logger = logging.getLogger(__name__)
 
@@ -191,8 +194,8 @@ def create_admin_user(request):
     except Exception as e:
         return Response({'error': str(e)}, status=400)
 
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
+# Remove the IsAdminUser permission requirement temporarily
+# @permission_classes([IsAdminUser]) # Comment out or remove this line
 def add_all_products(request):
     products = [
         {
@@ -349,4 +352,26 @@ def add_all_products(request):
         created_products.append(product)
 
     serializer = ProductSerializer(created_products, many=True)
-    return Response(serializer.data, status=status.HTTP_201_CREATED) 
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
+    def get_permissions(self):
+        # Temporarily allow any user to access all product actions
+        # WARNING: This is for testing/setup purposes and should be restricted in production.
+        return [permissions.AllowAny()]
+
+    # Ensure list action also explicitly allows any
+    def list(self, request, *args, **kwargs):
+        self.permission_classes = [permissions.AllowAny]
+        return super().list(request, *args, **kwargs)
+
+    # Ensure create action also explicitly allows any
+    def create(self, request, *args, **kwargs):
+        self.permission_classes = [permissions.AllowAny]
+        return super().create(request, *args, **kwargs)
+
+    # ... existing update, partial_update, destroy methods ... 
