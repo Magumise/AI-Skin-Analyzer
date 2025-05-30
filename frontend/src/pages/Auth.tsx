@@ -210,7 +210,7 @@ const Auth = () => {
         }
 
         const response = await authAPI.login({
-          username: formData.email,
+          email: formData.email,
           password: formData.password
         });
 
