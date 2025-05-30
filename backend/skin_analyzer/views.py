@@ -358,19 +358,85 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
+    # Temporarily disable authentication for this viewset
+    authentication_classes = []
 
     def get_permissions(self):
         # Temporarily allow any user to access all product actions
+        # WARNING: This is for testing/setup purposes and should be restricted in production.
         return [permissions.AllowAny()]
+
+    # Ensure list action also explicitly allows any
+    # def list(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().list(request, *args, **kwargs)
+
+    # Ensure create action also explicitly allows any
+    # def create(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().create(request, *args, **kwargs)
+
+    # Ensure retrieve action also explicitly allows any
+    # def retrieve(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().retrieve(request, *args, **kwargs)
+
+    # Ensure update action also explicitly allows any
+    # def update(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().update(request, *args, **kwargs)
+
+    # Ensure partial_update action also explicitly allows any
+    # def partial_update(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().partial_update(request, *args, **kwargs)
+
+    # Ensure destroy action also explicitly allows any
+    # def destroy(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().destroy(request, *args, **kwargs)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    
+    # Temporarily disable authentication for this viewset
+    authentication_classes = []
+
     def get_permissions(self):
         # Temporarily allow any user to access all user actions
+        # WARNING: This is for testing/setup purposes and should be restricted in production.
         return [permissions.AllowAny()]
+
+    # Ensure list action also explicitly allows any
+    # def list(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().list(request, *args, **kwargs)
+
+    # Ensure create action also explicitly allows any
+    # def create(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().create(request, *args, **kwargs)
+
+    # Ensure retrieve action also explicitly allows any
+    # def retrieve(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().retrieve(request, *args, **kwargs)
+
+    # Ensure update action also explicitly allows any
+    # def update(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().update(request, *args, **kwargs)
+
+    # Ensure partial_update action also explicitly allows any
+    # def partial_update(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().partial_update(request, *args, **kwargs)
+
+    # Ensure destroy action also explicitly allows any
+    # def destroy(self, request, *args, **kwargs):
+    #     self.permission_classes = [permissions.AllowAny]
+    #     return super().destroy(request, *args, **kwargs)
 
 # Assuming UploadedImageViewSet and AppointmentViewSet also exist and need similar temporary permission adjustments
 # If you encounter 401 errors on image or appointment endpoints, we may need to adjust them as well.

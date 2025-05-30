@@ -33,7 +33,21 @@ api.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     const isAdmin = localStorage.getItem('is_admin') === 'true';
     
-    if (isAdmin) {
+    // Skip token verification for specific endpoints
+    const skipAuthEndpoints = [
+      '/products/',
+      '/users/',
+      '/products/add-all/'
+    ];
+    
+    const shouldSkipAuth = skipAuthEndpoints.some(endpoint => 
+      config.url?.includes(endpoint)
+    );
+    
+    if (shouldSkipAuth) {
+      // Remove Authorization header for these endpoints
+      delete config.headers.Authorization;
+    } else if (isAdmin) {
       // For admin, use the dummy token
       config.headers.Authorization = `Bearer admin-token`;
     } else if (token) {
@@ -77,6 +91,22 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const isAdmin = localStorage.getItem('is_admin') === 'true';
+
+    // Skip error handling for specific endpoints
+    const skipAuthEndpoints = [
+      '/products/',
+      '/users/',
+      '/products/add-all/'
+    ];
+    
+    const shouldSkipAuth = skipAuthEndpoints.some(endpoint => 
+      originalRequest.url?.includes(endpoint)
+    );
+
+    if (shouldSkipAuth) {
+      // For these endpoints, just return the error response
+      return Promise.reject(error);
+    }
 
     // For admin, skip error handling
     if (isAdmin) {
