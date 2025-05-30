@@ -181,7 +181,26 @@ export const productAPI = {
   // Create a new product
   create: async (productData: ProductData) => {
     try {
-      const response = await api.post('/products/', productData);
+      // Create FormData for multipart/form-data
+      const formData = new FormData();
+      
+      // Add all fields to FormData
+      Object.entries(productData).forEach(([key, value]) => {
+        if (key === 'image' && value instanceof File) {
+          formData.append('image', value);
+        } else if (Array.isArray(value)) {
+          // Convert arrays to comma-separated strings
+          formData.append(key, value.join(', '));
+        } else {
+          formData.append(key, value.toString());
+        }
+      });
+
+      const response = await api.post('/products/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating product:', error);

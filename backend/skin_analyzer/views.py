@@ -358,14 +358,33 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    # Temporarily disable authentication for this viewset
     authentication_classes = []
-    permission_classes = [permissions.AllowAny]  # Allow any access to all actions
+    permission_classes = [permissions.AllowAny]
 
-    def get_permissions(self):
-        # Allow any user to access all product actions
-        # WARNING: This is for testing/setup purposes and should be restricted in production.
-        return [permissions.AllowAny()]
+    def create(self, request, *args, **kwargs):
+        try:
+            logger.info(f"Creating product with data: {request.data}")
+            
+            # Handle arrays in form data
+            for field in ['suitable_for', 'targets', 'when_to_apply']:
+                if field in request.data and isinstance(request.data[field], str):
+                    request.data[field] = request.data[field].split(',')
+            
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            
+            logger.info(f"Product created successfully: {serializer.data}")
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"Error creating product: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def perform_create(self, serializer):
+        serializer.save()
 
     def list(self, request, *args, **kwargs):
         try:
@@ -373,6 +392,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
         except Exception as e:
+            logger.error(f"Error listing products: {str(e)}")
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
