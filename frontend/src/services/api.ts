@@ -278,7 +278,7 @@ export const authAPI = {
       console.log('Login URL:', `${API_URL}/users/token/`);
 
       const response = await api.post('/users/token/', {
-        email: credentials.username,  // Changed from username to email
+        email: credentials.username,  // Using email field as expected by backend
         password: credentials.password
       });
 
@@ -289,10 +289,13 @@ export const authAPI = {
         throw new Error('Invalid response from server');
       }
 
+      // Store tokens
       localStorage.setItem('access_token', response.data.access);
       if (response.data.refresh) {
         localStorage.setItem('refresh_token', response.data.refresh);
       }
+
+      // Return the full response data
       return response.data;
     } catch (error: any) {
       console.error('Login error details:', {

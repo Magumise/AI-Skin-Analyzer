@@ -31,36 +31,45 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
+      console.log('Attempting login with:', { email });
+      
       const response = await authAPI.login({
-        username: email,
+        username: email,  // The API expects this to be the email
         password: password
       });
 
+      console.log('Login response:', response);
+
       // Store tokens
-      localStorage.setItem('access_token', response.access);
-      if (response.refresh) {
-        localStorage.setItem('refresh_token', response.refresh);
-      }
-
-      // Store user info
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-        // Set admin token for admin-specific routes
-        if (response.user.is_staff || response.user.is_superuser) {
-          localStorage.setItem('adminToken', response.access);
+      if (response.access) {
+        localStorage.setItem('access_token', response.access);
+        if (response.refresh) {
+          localStorage.setItem('refresh_token', response.refresh);
         }
+
+        // Store user info
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+          // Set admin token for admin-specific routes
+          if (response.user.is_staff || response.user.is_superuser) {
+            localStorage.setItem('adminToken', response.access);
+          }
+        }
+
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to the admin dashboard',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+
+        navigate('/admin/dashboard');
+      } else {
+        throw new Error('Invalid response from server');
       }
-
-      toast({
-        title: 'Login successful',
-        description: 'Welcome to the admin dashboard',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-
-      navigate('/admin/dashboard');
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: 'Login failed',
         description: error.message || 'Please check your credentials',
