@@ -194,6 +194,8 @@ def create_admin_user(request):
     except Exception as e:
         return Response({'error': str(e)}, status=400)
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def add_all_products(request):
     products = [
         {
