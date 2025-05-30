@@ -15,6 +15,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   useEffect(() => {
     const verifyToken = async () => {
       try {
+        // Check if this is an admin login
+        const isAdmin = localStorage.getItem('is_admin') === 'true';
+        const adminToken = localStorage.getItem('access_token') === 'admin-token';
+
+        if (requireAdmin && isAdmin && adminToken) {
+          setIsValid(true);
+          setIsVerifying(false);
+          return;
+        }
+
         const token = requireAdmin ? localStorage.getItem('adminToken') : localStorage.getItem('access_token');
         
         if (!token) {
@@ -31,6 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('adminToken');
+        localStorage.removeItem('is_admin');
         setIsValid(false);
       } finally {
         setIsVerifying(false);

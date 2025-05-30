@@ -110,7 +110,7 @@ const AdminDashboard = () => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -143,7 +143,8 @@ const AdminDashboard = () => {
     setIsLoading(true);
     try {
       const response = await productAPI.getAll();
-      setProducts(response);
+      // Ensure response is an array
+      setProducts(Array.isArray(response) ? response : []);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
@@ -153,6 +154,7 @@ const AdminDashboard = () => {
         duration: 3000,
         isClosable: true,
       });
+      setProducts([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
@@ -162,7 +164,8 @@ const AdminDashboard = () => {
     setIsLoadingUsers(true);
     try {
       const response = await api.get('/users/');
-      setUsers(response.data);
+      // Ensure response.data is an array
+      setUsers(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -172,6 +175,7 @@ const AdminDashboard = () => {
         duration: 3000,
         isClosable: true,
       });
+      setUsers([]); // Set empty array on error
     } finally {
       setIsLoadingUsers(false);
     }
