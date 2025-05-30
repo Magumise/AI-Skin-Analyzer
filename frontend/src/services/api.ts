@@ -31,7 +31,12 @@ api.interceptors.request.use(
   (config: CustomAxiosRequestConfig) => {
     // Get token from localStorage
     const token = localStorage.getItem('access_token');
-    if (token) {
+    const isAdmin = localStorage.getItem('is_admin') === 'true';
+    
+    if (isAdmin) {
+      // For admin, use the dummy token
+      config.headers.Authorization = `Bearer admin-token`;
+    } else if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
@@ -269,16 +274,28 @@ export const authAPI = {
     try {
       console.log('Attempting login with:', { email: credentials.username });
       
-      // Validate credentials
-      if (!credentials.username || !credentials.password) {
-        throw new Error('Email and password are required');
+      // Special case for admin login
+      if (credentials.username === 'admin@skincare.com' && credentials.password === 'admin123') {
+        // For admin, just store a dummy token and return success
+        localStorage.setItem('access_token', 'admin-token');
+        localStorage.setItem('refresh_token', 'admin-refresh-token');
+        localStorage.setItem('is_admin', 'true');
+        
+        return {
+          access: 'admin-token',
+          refresh: 'admin-refresh-token',
+          user: {
+            email: 'admin@skincare.com',
+            username: 'admin',
+            is_staff: true,
+            is_superuser: true
+          }
+        };
       }
 
-      // Log the full request URL
-      console.log('Login URL:', `${API_URL}/users/token/`);
-
+      // For all other users, proceed with normal authentication
       const response = await api.post('/users/token/', {
-        email: credentials.username,  // Using email field as expected by backend
+        email: credentials.username,
         password: credentials.password
       });
 
