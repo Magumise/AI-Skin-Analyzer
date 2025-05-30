@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -11,6 +12,58 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 import logging
 
 logger = logging.getLogger(__name__)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Get email and password from request
+            email = request.data.get('username', '').strip()  # JWT uses 'username' field
+            password = request.data.get('password')
+
+            # Validate email format
+            try:
+                validate_email(email)
+            except DjangoValidationError:
+                return Response(
+                    {'email': ['Please enter a valid email address.']},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Try to get user by email
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response(
+                    {'email': ['No user found with this email address.']},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Check password
+            if not user.check_password(password):
+                return Response(
+                    {'password': ['Invalid password.']},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser
+                }
+            })
+        except Exception as e:
+            logger.error(f"Login error: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class UserRegistrationView(generics.CreateAPIView):
     permission_classes = (AllowAny,)

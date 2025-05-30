@@ -196,6 +196,7 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
     'TOKEN_USER_CLASS': 'skin_analyzer.models.User',
+    'USERNAME_FIELD': 'email',
 }
 
 # CORS settings
