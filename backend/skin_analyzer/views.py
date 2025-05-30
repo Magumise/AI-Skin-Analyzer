@@ -19,11 +19,15 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             # Get email and password from request
             email = request.data.get('username', '').strip()  # JWT uses 'username' field
             password = request.data.get('password')
+            
+            logger.info(f"Login attempt for email: {email}")
 
             # Validate email format
             try:
                 validate_email(email)
+                logger.info("Email validation passed")
             except DjangoValidationError:
+                logger.error("Invalid email format")
                 return Response(
                     {'email': ['Please enter a valid email address.']},
                     status=status.HTTP_400_BAD_REQUEST
@@ -32,7 +36,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             # Try to get user by email
             try:
                 user = User.objects.get(email=email)
+                logger.info(f"User found: {user.email}, is_staff: {user.is_staff}, is_superuser: {user.is_superuser}")
             except User.DoesNotExist:
+                logger.error(f"No user found with email: {email}")
                 return Response(
                     {'email': ['No user found with this email address.']},
                     status=status.HTTP_400_BAD_REQUEST
@@ -40,13 +46,24 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
             # Check password
             if not user.check_password(password):
+                logger.error("Invalid password")
                 return Response(
                     {'password': ['Invalid password.']},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Check if user is staff or superuser
+            if not (user.is_staff or user.is_superuser):
+                logger.error("User is not staff or superuser")
+                return Response(
+                    {'error': ['You do not have permission to access the admin dashboard.']},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
             # Generate tokens
             refresh = RefreshToken.for_user(user)
+            logger.info("Login successful, tokens generated")
+            
             return Response({
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
