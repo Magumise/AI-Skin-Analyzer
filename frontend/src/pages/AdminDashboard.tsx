@@ -429,8 +429,13 @@ const AdminDashboard = () => {
   const handleAddAllProducts = async () => {
     setIsSubmitting(true);
     try {
-      // Call the new backend endpoint to add all products
-      const response = await api.post('/products/add-all/');
+      // Call the backend endpoint to add all products
+      const response = await api.post('/products/add-all/', {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       console.log('Add all products response:', response.data);
       toast({
         title: "Default products added",

@@ -8,9 +8,9 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration
-const API_BASE_URL = 'https://ai-skin-analyzer-vmlu.onrender.com/api';
+const API_BASE_URL = 'https://ai-skin-analyzer-vmlu.onrender.com';
 const PROXY_BASE_URL = 'https://ai-skin-analyzer-proxy.onrender.com';
-const API_URL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`;
+const API_URL = `${API_BASE_URL}/api`;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -47,6 +47,12 @@ api.interceptors.request.use(
     if (shouldSkipAuth) {
       // Remove Authorization header for these endpoints
       delete config.headers.Authorization;
+      // Also remove any other auth-related headers
+      delete config.headers['X-CSRFToken'];
+      delete config.headers['X-Requested-With'];
+      // Set Content-Type and Accept headers explicitly
+      config.headers['Content-Type'] = 'application/json';
+      config.headers['Accept'] = 'application/json';
     } else if (isAdmin) {
       // For admin, use the dummy token
       config.headers.Authorization = `Bearer admin-token`;
