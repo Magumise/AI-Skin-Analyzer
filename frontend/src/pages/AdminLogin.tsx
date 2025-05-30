@@ -41,8 +41,15 @@ const AdminLogin = () => {
       if (response.refresh) {
         localStorage.setItem('refresh_token', response.refresh);
       }
-      // Set admin token for admin-specific routes
-      localStorage.setItem('adminToken', response.access);
+
+      // Store user info
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user));
+        // Set admin token for admin-specific routes
+        if (response.user.is_staff || response.user.is_superuser) {
+          localStorage.setItem('adminToken', response.access);
+        }
+      }
 
       toast({
         title: 'Login successful',

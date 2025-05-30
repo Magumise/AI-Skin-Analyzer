@@ -267,18 +267,18 @@ export const authAPI = {
   // Login user
   login: async (credentials: { username: string; password: string }) => {
     try {
-      console.log('Attempting login with:', { email: credentials.username });
+      console.log('Attempting login with:', { username: credentials.username });
       
       // Validate credentials
       if (!credentials.username || !credentials.password) {
-        throw new Error('Email and password are required');
+        throw new Error('Username and password are required');
       }
 
       // Log the full request URL
       console.log('Login URL:', `${API_URL}/users/token/`);
 
       const response = await api.post('/users/token/', {
-        username: credentials.username.trim(),
+        username: credentials.username.trim(),  // This should be the email
         password: credentials.password
       });
 
@@ -289,10 +289,17 @@ export const authAPI = {
         throw new Error('Invalid response from server');
       }
 
+      // Store tokens
       localStorage.setItem('access_token', response.data.access);
       if (response.data.refresh) {
         localStorage.setItem('refresh_token', response.data.refresh);
       }
+
+      // Store user info
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+
       return response.data;
     } catch (error: any) {
       console.error('Login error details:', {
@@ -302,12 +309,20 @@ export const authAPI = {
         headers: error.response?.headers
       });
       
-      const errorMessage = error.response?.data?.detail || 
-                          error.response?.data?.message || 
-                          error.response?.data?.non_field_errors?.[0] ||
-                          error.message || 
-                          'Login failed';
-      throw new Error(errorMessage);
+      // Handle specific error cases
+      if (error.response?.data?.detail) {
+        throw new Error(error.response.data.detail);
+      } else if (error.response?.data?.non_field_errors) {
+        throw new Error(error.response.data.non_field_errors[0]);
+      } else if (error.response?.data?.email) {
+        throw new Error(error.response.data.email[0]);
+      } else if (error.response?.data?.username) {
+        throw new Error(error.response.data.username[0]);
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+      
+      throw new Error(error.message || 'Login failed');
     }
   },
 

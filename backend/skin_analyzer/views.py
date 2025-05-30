@@ -64,6 +64,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             refresh = RefreshToken.for_user(user)
             logger.info("Login successful, tokens generated")
             
+            # Add custom claims to the token
+            refresh['email'] = user.email
+            refresh['is_staff'] = user.is_staff
+            refresh['is_superuser'] = user.is_superuser
+            
             return Response({
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
