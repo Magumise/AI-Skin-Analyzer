@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import permissions
+from django.middleware.security import SecurityMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -463,4 +464,22 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         # Temporarily allow any user to access all appointment actions
-        return [permissions.AllowAny()] 
+        return [permissions.AllowAny()]
+
+class AllowAddProductsMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Temporarily bypass authentication for the add-all-products endpoint
+        # WARNING: Remove this middleware in production!
+        if request.method == 'POST' and request.path == '/api/products/add-all/':
+            # Simulate an authenticated user or just bypass authentication checks downstream
+            # For simplicity, we'll just let the request proceed without an authenticated user
+            # This relies on the view itself having AllowAny permission
+            request._authenticator = None # Bypass DRF's authentication
+            request.user = None # Ensure no user is attached
+            request._not_authenticated = True # Hint to DRF that authentication was skipped
+
+        response = self.get_response(request)
+        return response 
