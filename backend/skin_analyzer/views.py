@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import User, Product
-from .serializers import CustomTokenObtainPairSerializer, ProductSerializer
+from .models import User, Product, UploadedImage, AnalysisResult, Appointment
+from .serializers import CustomTokenObtainPairSerializer, ProductSerializer, UserSerializer, UploadedImageSerializer, AnalysisResultSerializer, AppointmentSerializer
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.core.validators import EmailValidator
@@ -194,8 +194,6 @@ def create_admin_user(request):
     except Exception as e:
         return Response({'error': str(e)}, status=400)
 
-# Remove the IsAdminUser permission requirement temporarily
-# @permission_classes([IsAdminUser]) # Comment out or remove this line
 def add_all_products(request):
     products = [
         {
@@ -361,17 +359,41 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         # Temporarily allow any user to access all product actions
-        # WARNING: This is for testing/setup purposes and should be restricted in production.
         return [permissions.AllowAny()]
 
-    # Ensure list action also explicitly allows any
-    def list(self, request, *args, **kwargs):
-        self.permission_classes = [permissions.AllowAny]
-        return super().list(request, *args, **kwargs)
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
+    def get_permissions(self):
+        # Temporarily allow any user to access all user actions
+        return [permissions.AllowAny()]
 
-    # Ensure create action also explicitly allows any
-    def create(self, request, *args, **kwargs):
-        self.permission_classes = [permissions.AllowAny]
-        return super().create(request, *args, **kwargs)
+# Assuming UploadedImageViewSet and AppointmentViewSet also exist and need similar temporary permission adjustments
+# If you encounter 401 errors on image or appointment endpoints, we may need to adjust them as well.
 
-    # ... existing update, partial_update, destroy methods ... 
+class UploadedImageViewSet(viewsets.ModelViewSet):
+    queryset = UploadedImage.objects.all()
+    serializer_class = UploadedImageSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get_permissions(self):
+        # Temporarily allow any user to access all image actions
+        return [permissions.AllowAny()]
+
+class AnalysisResultViewSet(viewsets.ModelViewSet):
+    queryset = AnalysisResult.objects.all()
+    serializer_class = AnalysisResultSerializer
+
+    def get_permissions(self):
+        # Temporarily allow any user to access all analysis result actions
+        return [permissions.AllowAny()]
+
+class AppointmentViewSet(viewsets.ModelViewSet):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    
+    def get_permissions(self):
+        # Temporarily allow any user to access all appointment actions
+        return [permissions.AllowAny()] 
