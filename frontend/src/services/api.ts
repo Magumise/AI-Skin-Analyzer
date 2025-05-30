@@ -423,6 +423,7 @@ export const testAIModel = async () => {
 export const analysisAPI = {
   analyzeImage: async (imageFile: File) => {
     try {
+      console.log('Sending image to proxy server...');
       const formData = new FormData();
       formData.append('file', imageFile);
 
@@ -434,14 +435,32 @@ export const analysisAPI = {
             'Content-Type': 'multipart/form-data',
             'Accept': 'application/json'
           },
-          timeout: 120000 // 120 seconds timeout
+          timeout: 120000, // 120 seconds timeout
+          withCredentials: false // Important for CORS
         }
       );
 
+      console.log('Received response from proxy:', response.data);
       return response.data;
-    } catch (error) {
-      console.error('Analysis error:', error);
-      throw error;
+    } catch (error: any) {
+      console.error('Analysis error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        throw new Error(error.response.data?.message || error.response.data?.error || 'Analysis failed');
+      } else if (error.request) {
+        // The request was made but no response was received
+        throw new Error('No response received from AI model. Please check your internet connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        throw new Error(error.message || 'Analysis failed');
+      }
     }
   },
 };
