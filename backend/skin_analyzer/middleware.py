@@ -3,9 +3,10 @@ class AllowAddProductsMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Temporarily bypass authentication for the add-all-products endpoint
+        # Temporarily bypass authentication for product-related endpoints
         # WARNING: Remove this middleware in production!
-        if request.method == 'POST' and request.path == '/api/products/add-all/':
+        if (request.method == 'POST' and request.path == '/api/products/add-all/') or \
+           (request.method == 'GET' and request.path == '/api/products/'):
             # Simulate an authenticated user or just bypass authentication checks downstream
             # For simplicity, we'll just let the request proceed without an authenticated user
             # This relies on the view itself having AllowAny permission

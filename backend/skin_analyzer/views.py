@@ -360,41 +360,39 @@ class ProductViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     # Temporarily disable authentication for this viewset
     authentication_classes = []
+    permission_classes = [permissions.AllowAny]  # Allow any access to all actions
 
     def get_permissions(self):
-        # Temporarily allow any user to access all product actions
+        # Allow any user to access all product actions
         # WARNING: This is for testing/setup purposes and should be restricted in production.
         return [permissions.AllowAny()]
 
-    # Ensure list action also explicitly allows any
-    # def list(self, request, *args, **kwargs):
-    #     self.permission_classes = [permissions.AllowAny]
-    #     return super().list(request, *args, **kwargs)
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-    # Ensure create action also explicitly allows any
-    # def create(self, request, *args, **kwargs):
-    #     self.permission_classes = [permissions.AllowAny]
-    #     return super().create(request, *args, **kwargs)
-
-    # Ensure retrieve action also explicitly allows any
-    # def retrieve(self, request, *args, **kwargs):
-    #     self.permission_classes = [permissions.AllowAny]
-    #     return super().retrieve(request, *args, **kwargs)
-
-    # Ensure update action also explicitly allows any
-    # def update(self, request, *args, **kwargs):
-    #     self.permission_classes = [permissions.AllowAny]
-    #     return super().update(request, *args, **kwargs)
-
-    # Ensure partial_update action also explicitly allows any
-    # def partial_update(self, request, *args, **kwargs):
-    #     self.permission_classes = [permissions.AllowAny]
-    #     return super().partial_update(request, *args, **kwargs)
-
-    # Ensure destroy action also explicitly allows any
-    # def destroy(self, request, *args, **kwargs):
-    #     self.permission_classes = [permissions.AllowAny]
-    #     return super().destroy(request, *args, **kwargs)
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            # Remove image from data if it's not a file
+            if 'image' in request.data and not isinstance(request.data['image'], (str, type(None))):
+                request.data.pop('image')
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
