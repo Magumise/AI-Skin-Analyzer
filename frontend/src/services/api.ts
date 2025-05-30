@@ -267,18 +267,18 @@ export const authAPI = {
   // Login user
   login: async (credentials: { username: string; password: string }) => {
     try {
-      console.log('Attempting login with:', { username: credentials.username });
+      console.log('Attempting login with:', { email: credentials.username });
       
       // Validate credentials
       if (!credentials.username || !credentials.password) {
-        throw new Error('Username and password are required');
+        throw new Error('Email and password are required');
       }
 
       // Log the full request URL
       console.log('Login URL:', `${API_URL}/users/token/`);
 
       const response = await api.post('/users/token/', {
-        username: credentials.username.trim(),  // This should be the email
+        email: credentials.username.trim(),  // Changed from username to email
         password: credentials.password
       });
 

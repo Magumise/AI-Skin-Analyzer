@@ -17,7 +17,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         try:
             # Get email and password from request
-            email = request.data.get('username', '').strip()  # JWT uses 'username' field
+            email = request.data.get('email', '').strip()  # Changed from username to email
             password = request.data.get('password')
             
             logger.info(f"Login attempt for email: {email}")
